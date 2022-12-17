@@ -14,6 +14,15 @@ import (
 
 const GitHubAccessTokenKey = "GITHUB_ACCESS_TOKEN"
 
+func ShowSlowMessage() {
+	if !IsGitHubAccessTokenProvided() {
+		println(fmt.Sprintf(
+			"warning: If the environment variable %v is not set, API searches will be very slow.",
+			GitHubAccessTokenKey,
+		))
+	}
+}
+
 func FindLoginByEmail(email string) (string, error) {
 	// https://docs.github.com/ja/rest/search?apiVersion=2022-11-28#search-users
 	sleep := 6

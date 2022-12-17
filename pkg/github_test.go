@@ -10,6 +10,8 @@ func TestFindLoginByEmail(t *testing.T) {
 		t.SkipNow()
 	}
 
+	t.Setenv(GitHubAccessTokenKey, "")
+
 	t.Run("user found with public email", func(t *testing.T) {
 		login, err := FindLoginByEmail("audreyt@audreyt.org")
 		assert.NoError(t, err)
@@ -27,7 +29,6 @@ func TestFindLoginByEmail(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "", login)
 	})
-
 }
 
 func TestIsGitHubAccessTokenProvided(t *testing.T) {
