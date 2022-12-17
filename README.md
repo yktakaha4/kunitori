@@ -1,1 +1,5 @@
 # kunitori
+
+```
+make test
+```
