@@ -2,4 +2,6 @@
 
 ```
 make test
+
+make build
 ```
