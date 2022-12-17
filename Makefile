@@ -2,16 +2,16 @@
 
 .PHONY: test
 test:
-	go test -v ./internal/...
+	go test -v ./...
 
 .PHONY: build
 build:
-	go build -v ./cmd/kunitori/
+	go build -o ./bin/kunitori -v ./cmd/kunitori/
 
 .PHONY: fmt
 fmt:
-	go fmt -x ./internal/... ./cmd/...
+	go fmt ./...
 
 .PHONY: vet
 vet:
-	go vet ./internal/... ./cmd/...
+	go vet ./...

@@ -1,11 +1,11 @@
-package kunitori
+package main
 
 import (
-	"io/ioutil"
+	"io"
 	"log"
 )
 
 func main() {
-	log.SetOutput(ioutil.Discard)
-	println("moro")
+	log.SetOutput(io.Discard)
+	println("hello")
 }
