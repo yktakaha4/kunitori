@@ -23,9 +23,6 @@ func TestCloneRepository(t *testing.T) {
 		{
 			url: "https://github.com/yktakaha4/eduterm.git",
 		},
-		{
-			url: "git@github.com:yktakaha4/eduterm.git",
-		},
 	}
 
 	for index, testCase := range testCases {
