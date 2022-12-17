@@ -9,12 +9,19 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"time"
 )
 
 const GitHubAccessTokenKey = "GITHUB_ACCESS_TOKEN"
 
 func FindLoginByEmail(email string) (string, error) {
-	log.Printf("start FindLoginByEmail")
+	// https://docs.github.com/ja/rest/search?apiVersion=2022-11-28#search-users
+	sleep := 6
+	if IsGitHubAccessTokenProvided() {
+		sleep = 2
+	}
+
+	log.Printf("start FindLoginByEmailL: email=%v, sleep=%v", email, sleep)
 
 	gitHubNoReplyEmailRegex := regexp.MustCompile("@users\\.noreply\\.github\\.com$")
 
@@ -36,7 +43,11 @@ func FindLoginByEmail(email string) (string, error) {
 	log.Printf("search users: query=%v", query)
 
 	client, ctx := createGitHubClient()
+
 	result, _, err := client.Search.Users(ctx, query, nil)
+
+	time.Sleep(time.Duration(sleep) * time.Second)
+
 	if err != nil {
 		return "", err
 	}
@@ -57,13 +68,17 @@ func IsGitHubAccessTokenProvided() bool {
 }
 
 func createGitHubClient() (*github.Client, context.Context) {
-	token := os.Getenv(GitHubAccessTokenKey)
-
 	ctx := context.Background()
-	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: token},
-	)
-	tc := oauth2.NewClient(ctx, ts)
+	if IsGitHubAccessTokenProvided() {
+		token := os.Getenv(GitHubAccessTokenKey)
 
-	return github.NewClient(tc), ctx
+		ts := oauth2.StaticTokenSource(
+			&oauth2.Token{AccessToken: token},
+		)
+		tc := oauth2.NewClient(ctx, ts)
+
+		return github.NewClient(tc), ctx
+	} else {
+		return github.NewClient(nil), ctx
+	}
 }
