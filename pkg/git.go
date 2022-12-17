@@ -167,7 +167,7 @@ type CountLinesResult struct {
 }
 
 func CountLines(commit *object.Commit, options *CountLinesOption) ([]*CountLinesResult, error) {
-	log.Printf("start CountLines: commit=%+v, options=%+v", commit, options)
+	log.Printf("start CountLines: commit=%+v, options=%+v", commit.Hash, options)
 	results := make([]*CountLinesResult, 0)
 	for _, filter := range options.Filters {
 		results = append(results, &CountLinesResult{
@@ -179,8 +179,6 @@ func CountLines(commit *object.Commit, options *CountLinesOption) ([]*CountLines
 	if err != nil {
 		return nil, err
 	}
-
-	log.Printf("traverse: tree=%+v", tree)
 
 	fileCount, targetCount, linesCount := 0, 0, 0
 	err = tree.Files().ForEach(func(file *object.File) error {
@@ -196,6 +194,8 @@ func CountLines(commit *object.Commit, options *CountLinesOption) ([]*CountLines
 			if !result.Filter.MatchString(file.Name) {
 				return nil
 			}
+
+			log.Printf("match: file=%+v, filter=%+v", file.Name, result.Filter)
 
 			blameResult, err := git.Blame(commit, file.Name)
 			if err != nil {

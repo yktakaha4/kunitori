@@ -3,9 +3,11 @@ package pkg
 import (
 	"fmt"
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"path/filepath"
+	"regexp"
 	"testing"
 	"time"
 )
@@ -141,6 +143,32 @@ func TestSearchCommits(t *testing.T) {
 	}
 }
 
+func TestCountLines(t *testing.T) {
+	djangoRepository := openTestRepository("django")
+	djangoHeadCommit := getHeadCommit(djangoRepository)
+
+	testCases := []struct {
+		commit  *object.Commit
+		options *CountLinesOption
+	}{
+		{
+			commit: djangoHeadCommit,
+			options: &CountLinesOption{
+				Filters:       []regexp.Regexp{},
+				AuthorRegexes: map[string]regexp.Regexp{},
+			},
+		},
+	}
+
+	for index, testCase := range testCases {
+		t.Run(fmt.Sprintf("case_%v", index), func(t *testing.T) {
+			results, err := CountLines(testCase.commit, testCase.options)
+			assert.NoError(t, err)
+			assert.Equal(t, len(testCase.options.Filters), len(results))
+		})
+	}
+}
+
 func rootPath() string {
 	wd, err := os.Getwd()
 	if err != nil {
@@ -168,4 +196,18 @@ func openTestRepository(name string) *git.Repository {
 		panic(err)
 	}
 	return repository
+}
+
+func getHeadCommit(repository *git.Repository) *object.Commit {
+	reference, err := repository.Head()
+	if err != nil {
+		panic(err)
+	}
+
+	commit, err := repository.CommitObject(reference.Hash())
+	if err != nil {
+		panic(err)
+	}
+
+	return commit
 }
