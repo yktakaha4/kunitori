@@ -13,6 +13,7 @@ import (
 )
 
 const GitHubAccessTokenKey = "GITHUB_ACCESS_TOKEN"
+const KunitoriSkipRequestGitHubApi = "KUNITORI_SKIP_REQUEST_GITHUB_API"
 
 func ShowSlowMessage() {
 	if !IsGitHubAccessTokenProvided() {
@@ -24,6 +25,10 @@ func ShowSlowMessage() {
 }
 
 func FindLoginByEmail(email string) (string, error) {
+	if os.Getenv(KunitoriSkipRequestGitHubApi) == "yes" {
+		return "kunitori", nil
+	}
+
 	// https://docs.github.com/ja/rest/search?apiVersion=2022-11-28#search-users
 	sleep := 7
 	if IsGitHubAccessTokenProvided() {

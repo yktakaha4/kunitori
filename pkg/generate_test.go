@@ -11,6 +11,8 @@ import (
 )
 
 func TestGenerate(t *testing.T) {
+	t.Setenv(KunitoriSkipRequestGitHubApi, "yes")
+
 	options := GenerateOptions{
 		RepositoryPath: testDataPath("django"),
 		Region:         "JP",

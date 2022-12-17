@@ -1,0 +1,53 @@
+<html>
+<head>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script type="text/javascript">
+    google.charts.load('current', {
+      'packages':['geochart'],
+    });
+    google.charts.setOnLoadCallback(drawRegionsMap);
+    window.onresize = drawRegionsMap
+
+    const chartData = {{.}};
+    let selectedIndex = 0;
+
+    function drawRegionsMap() {
+      const data = google.visualization.arrayToDataTable(chartData[selectedIndex].dataTable);
+
+      const options = {
+        region: 'JP',
+        displayMode: 'regions',
+        backgroundColor: '#ebf7fe',
+        resolution: 'provinces',
+        colors:[
+          '#8000ff',
+          '#0000ff',
+          '#0080ff',
+          '#00ffff',
+          '#00ff80',
+          '#00ff00',
+          '#80ff00',
+          '#ffff00',
+          '#ff8000',
+          '#ff0000',
+        ],
+      };
+
+      const chart = new google.visualization.GeoChart(document.getElementById('regions_div'));
+
+      chart.draw(data, options);
+    }
+  </script>
+</head>
+<body>
+<div id="regions_div" style="width: 100%; height: 100%;"></div>
+<div style="position: fixed; right: 0; bottom: 0; margin: 1em; padding: 1em; background-color: white;">
+  Revision: <select id="revision">
+    <option>hoge</option>
+  </select>
+  Filter: <select id="filter">
+    <option>hoge</option>
+  </select>
+</div>
+</body>
+</html>
