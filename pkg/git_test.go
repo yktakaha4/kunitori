@@ -262,6 +262,10 @@ func TestCountLines(t *testing.T) {
 	maskRegex := regexp.MustCompile("@.+$")
 
 	for index, testCase := range testCases {
+		if index > 0 && testing.Short() {
+			t.SkipNow()
+		}
+
 		t.Run(fmt.Sprintf("case_%v", index), func(t *testing.T) {
 			results, err := CountLines(testCase.commit, testCase.options)
 			assert.NoError(t, err)
