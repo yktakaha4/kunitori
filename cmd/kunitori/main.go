@@ -27,7 +27,9 @@ func (i *arrayFlags) Set(value string) error {
 }
 
 func main() {
-	log.SetOutput(io.Discard)
+	if os.Getenv("DEBUG") == "" {
+		log.SetOutput(io.Discard)
+	}
 
 	defaultHelpMessage := `Kunitori
 - generate	...	generate chart
