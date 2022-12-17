@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"errors"
 	"fmt"
 	"github.com/go-git/go-git/v5"
 	"log"
@@ -90,6 +91,8 @@ func Generate(options *GenerateOptions) (*GenerateResult, error) {
 		if err != nil {
 			return nil, err
 		}
+	} else {
+		return nil, errors.New("should specify url or path")
 	}
 
 	fmt.Println("search commit...")
