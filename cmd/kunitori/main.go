@@ -161,8 +161,7 @@ func main() {
 
 		generateResult, err := pkg.Generate(&options)
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			panic(err)
 		}
 
 		var fileName string
@@ -179,8 +178,7 @@ func main() {
 			fileName = path.Join(*generateOut, "chart.html")
 			html, err := pkg.RenderChartHtml(generateResult)
 			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
+				panic(err)
 			}
 			data = []byte(html)
 		}

@@ -190,7 +190,7 @@ func CountLines(repository *git.Repository, commit *object.Commit, options *Coun
 		return nil, err
 	}
 
-	fileCount, targetCount, linesCount := 0, 0, 0
+	fileCount, targetCount, linesCount, errorCount := 0, 0, 0, 0
 	err = tree.Files().ForEach(func(file *object.File) error {
 		fileCount++
 
@@ -210,7 +210,9 @@ func CountLines(repository *git.Repository, commit *object.Commit, options *Coun
 
 			blameResult, err := git.Blame(commit, file.Name)
 			if err != nil {
-				return err
+				log.Printf("failed to blame: err=%v", err)
+				errorCount++
+				continue
 			}
 
 			for _, line := range blameResult.Lines {
@@ -226,7 +228,8 @@ func CountLines(repository *git.Repository, commit *object.Commit, options *Coun
 				if result.NameByAuthor[author] == "" {
 					lineCommit, err := repository.CommitObject(line.Hash)
 					if err != nil {
-						return err
+						log.Printf("failed to get line commit: err=%v", err)
+						continue
 					}
 					result.NameByAuthor[author] = lineCommit.Author.Name
 				}
