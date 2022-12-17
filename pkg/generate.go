@@ -182,7 +182,7 @@ func Generate(options *GenerateOptions) (*GenerateResult, error) {
 	return &GenerateResult{
 		Repository:  repositoryLocation,
 		Source:      GetSource(repositoryLocation),
-		GeneratedAt: time.Now(),
+		GeneratedAt: time.Now().UTC(),
 		Commits:     resultCommits,
 	}, nil
 }
