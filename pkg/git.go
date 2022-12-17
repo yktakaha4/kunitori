@@ -164,6 +164,7 @@ type CountLinesOption struct {
 type CountLinesResult struct {
 	Filter        regexp.Regexp
 	LinesByAuthor map[string]int
+	MatchedFiles  []string
 }
 
 func CountLines(commit *object.Commit, options *CountLinesOption) ([]*CountLinesResult, error) {
@@ -171,7 +172,9 @@ func CountLines(commit *object.Commit, options *CountLinesOption) ([]*CountLines
 	results := make([]*CountLinesResult, 0)
 	for _, filter := range options.Filters {
 		results = append(results, &CountLinesResult{
-			Filter: filter,
+			Filter:        filter,
+			LinesByAuthor: map[string]int{},
+			MatchedFiles:  make([]string, 0),
 		})
 	}
 
@@ -188,14 +191,15 @@ func CountLines(commit *object.Commit, options *CountLinesOption) ([]*CountLines
 			return nil
 		}
 
-		targetCount++
-
 		for _, result := range results {
 			if !result.Filter.MatchString(file.Name) {
 				return nil
 			}
 
-			log.Printf("match: file=%+v, filter=%+v", file.Name, result.Filter)
+			result.MatchedFiles = append(result.MatchedFiles, file.Name)
+			targetCount++
+
+			log.Printf("match: file=%+v, filter=%+v", file.Name, result.Filter.String())
 
 			blameResult, err := git.Blame(commit, file.Name)
 			if err != nil {

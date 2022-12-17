@@ -150,6 +150,7 @@ func TestCountLines(t *testing.T) {
 	testCases := []struct {
 		commit  *object.Commit
 		options *CountLinesOption
+		results []*CountLinesResult
 	}{
 		{
 			commit: djangoHeadCommit,
@@ -158,13 +159,94 @@ func TestCountLines(t *testing.T) {
 				AuthorRegexes: map[string]regexp.Regexp{},
 			},
 		},
+		{
+			commit: djangoHeadCommit,
+			options: &CountLinesOption{
+				Filters: []regexp.Regexp{
+					*regexp.MustCompile("^setup\\.py$"),
+				},
+				AuthorRegexes: map[string]regexp.Regexp{},
+			},
+			results: []*CountLinesResult{
+				{
+					Filter: *regexp.MustCompile("^setup\\.py$"),
+					// https://github.com/django/django/blame/a1bcdc94da6d597c51b4eca0411a97a6460b482e/setup.py
+					LinesByAuthor: map[string]int{
+						"adrian@masked.com":       1,
+						"carl@masked.com":         37,
+						"carlton@masked.com":      4,
+						"florian@masked.com":      3,
+						"jacob@masked.com":        1,
+						"jon.dufresne@masked.com": 2,
+						"ops@masked.com":          6,
+						"timograham@masked.com":   1,
+					},
+					MatchedFiles: []string{
+						"setup.py",
+					},
+				},
+			},
+		},
+		{
+			commit: djangoHeadCommit,
+			options: &CountLinesOption{
+				Filters: []regexp.Regexp{
+					*regexp.MustCompile("^django/__(init|main)__\\.py$|^django/shortcuts\\.py$"),
+				},
+				AuthorRegexes: map[string]regexp.Regexp{},
+			},
+			results: []*CountLinesResult{
+				{
+					Filter: *regexp.MustCompile("^django/__(init|main)__\\.py$|^django/shortcuts\\.py$"),
+					// https://github.com/django/django/tree/a1bcdc94da6d597c51b4eca0411a97a6460b482e/django
+					LinesByAuthor: map[string]int{
+						"alex.gaynor@masked.com":      79,
+						"anton.samarchyan@masked.com": 1,
+						"aymeric.augustin@masked.com": 6,
+						"carlton.gibson@masked.com":   1,
+						"claude@masked.com":           33,
+						"dilyanpalauzov@masked.com":   2,
+						"dizballanze@masked.com":      3,
+						"info@masked.com":             2,
+						"marten.knbk@masked.com":      8,
+						"ops@masked.com":              29,
+						"ryan@masked.com":             9,
+						"smithdc@masked.com":          3,
+						"timograham@masked.com":       11,
+						"vytis.banaitis@masked.com":   1,
+					},
+					MatchedFiles: []string{
+						"django/__init__.py",
+						"django/__main__.py",
+						"django/shortcuts.py",
+					},
+				},
+			},
+		},
 	}
+
+	maskRegex := regexp.MustCompile("@.+$")
 
 	for index, testCase := range testCases {
 		t.Run(fmt.Sprintf("case_%v", index), func(t *testing.T) {
 			results, err := CountLines(testCase.commit, testCase.options)
 			assert.NoError(t, err)
-			assert.Equal(t, len(testCase.options.Filters), len(results))
+			assert.Equal(t, len(testCase.results), len(results))
+
+			for index, result := range results {
+				t.Run(fmt.Sprintf("result_%v", index), func(t *testing.T) {
+					expected := testCase.results[index]
+					assert.Equal(t, expected.Filter, result.Filter)
+
+					maskedLinesByAuthor := map[string]int{}
+					for key, value := range result.LinesByAuthor {
+						maskedKey := maskRegex.ReplaceAllString(key, "@masked.com")
+						maskedLinesByAuthor[maskedKey] = value
+					}
+
+					assert.Equal(t, expected.LinesByAuthor, maskedLinesByAuthor)
+				})
+			}
 		})
 	}
 }
