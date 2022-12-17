@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestKunitori(t *testing.T) {
+func TestAllocateAreas(t *testing.T) {
 	areaInfo := AreaInfo{
 		Region: "TestArea",
 		Areas: []Area{
@@ -39,44 +39,52 @@ func TestKunitori(t *testing.T) {
 			result:   &result,
 			areaAuthors: []*AreaAuthor{
 				{
-					Area:      areaInfo.Areas[0],
-					AreaRatio: 0.333,
-					Author:    "userA",
+					Area:       areaInfo.Areas[0],
+					AreaRatio:  0.333,
+					Author:     "userA",
+					AuthorRank: 1,
 				},
 				{
-					Area:      areaInfo.Areas[1],
-					AreaRatio: 0.25,
-					Author:    "userB",
+					Area:       areaInfo.Areas[1],
+					AreaRatio:  0.25,
+					Author:     "userB",
+					AuthorRank: 2,
 				},
 				{
-					Area:      areaInfo.Areas[2],
-					AreaRatio: 0.167,
-					Author:    "userA",
+					Area:       areaInfo.Areas[2],
+					AreaRatio:  0.167,
+					Author:     "userA",
+					AuthorRank: 1,
 				},
 				{
-					Area:      areaInfo.Areas[3],
-					AreaRatio: 0.083,
-					Author:    "userB",
+					Area:       areaInfo.Areas[3],
+					AreaRatio:  0.083,
+					Author:     "userB",
+					AuthorRank: 2,
 				},
 				{
-					Area:      areaInfo.Areas[4],
-					AreaRatio: 0.067,
-					Author:    "userC",
+					Area:       areaInfo.Areas[4],
+					AreaRatio:  0.067,
+					Author:     "userC",
+					AuthorRank: 3,
 				},
 				{
-					Area:      areaInfo.Areas[5],
-					AreaRatio: 0.05,
-					Author:    "userC",
+					Area:       areaInfo.Areas[5],
+					AreaRatio:  0.05,
+					Author:     "userC",
+					AuthorRank: 3,
 				},
 				{
-					Area:      areaInfo.Areas[6],
-					AreaRatio: 0.033,
-					Author:    "userC",
+					Area:       areaInfo.Areas[6],
+					AreaRatio:  0.033,
+					Author:     "userC",
+					AuthorRank: 3,
 				},
 				{
-					Area:      areaInfo.Areas[7],
-					AreaRatio: 0.017,
-					Author:    "userC",
+					Area:       areaInfo.Areas[7],
+					AreaRatio:  0.017,
+					Author:     "userC",
+					AuthorRank: 3,
 				},
 			},
 		},
@@ -84,7 +92,7 @@ func TestKunitori(t *testing.T) {
 
 	for index, testCase := range testCases {
 		t.Run(fmt.Sprintf("case_%v", index), func(t *testing.T) {
-			areaAuthors, err := Kunitori(testCase.areaInfo, testCase.result)
+			areaAuthors, err := AllocateAreas(testCase.areaInfo, testCase.result)
 			assert.NoError(t, err)
 			assert.Equal(t, len(testCase.areaInfo.Areas), len(areaAuthors))
 			assert.Equal(t, testCase.areaAuthors, areaAuthors)

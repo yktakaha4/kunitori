@@ -9,12 +9,13 @@ import (
 )
 
 type AreaAuthor struct {
-	Area      Area
-	AreaRatio float64
-	Author    string
+	Area       Area
+	AreaRatio  float64
+	Author     string
+	AuthorRank int
 }
 
-func Kunitori(areaInfo *AreaInfo, result *CountLinesResult) ([]*AreaAuthor, error) {
+func AllocateAreas(areaInfo *AreaInfo, result *CountLinesResult) ([]*AreaAuthor, error) {
 	type rank struct {
 		author     string
 		lines      int
@@ -67,6 +68,7 @@ func Kunitori(areaInfo *AreaInfo, result *CountLinesResult) ([]*AreaAuthor, erro
 
 	areaAuthors := make([]*AreaAuthor, 0)
 	fraction := float64(1)
+	foundAuthors := make([]string, 0)
 	for _, area := range areaInfo.Areas {
 		areaRatio := area.Size / totalAreaSize
 		author := ""
@@ -92,11 +94,25 @@ func Kunitori(areaInfo *AreaInfo, result *CountLinesResult) ([]*AreaAuthor, erro
 			log.Printf("skip: area=%v, areaRatio=%v", area.Name, areaInfo)
 		}
 
+		foundAuthorIndex := -1
+		for index, foundAuthor := range foundAuthors {
+			if foundAuthor == author {
+				foundAuthorIndex = index
+				break
+			}
+		}
+
+		if foundAuthorIndex == -1 {
+			foundAuthors = append(foundAuthors, author)
+			foundAuthorIndex = len(foundAuthors) - 1
+		}
+
 		roundedAreaRatio := math.Round(areaRatio*1000) / 1000
 		areaAuthors = append(areaAuthors, &AreaAuthor{
-			Area:      area,
-			Author:    author,
-			AreaRatio: roundedAreaRatio,
+			Area:       area,
+			Author:     author,
+			AreaRatio:  roundedAreaRatio,
+			AuthorRank: foundAuthorIndex + 1,
 		})
 		fraction -= roundedAreaRatio
 	}
