@@ -109,10 +109,11 @@ func Generate(options *GenerateOptions) (*GenerateResult, error) {
 	resultCommits := make([]GenerateResultCommit, 0)
 	for index, commit := range commits {
 		fmt.Println(fmt.Sprintf(
-			"count lines: progress=%v/%v, hash=%v",
+			"count lines: progress=%v/%v, hash=%v, when=%v",
 			index+1,
 			len(commits),
 			commit.Hash.String(),
+			commit.Author.When.UTC().String(),
 		))
 
 		results, err := CountLines(repository, commit, options.CountLinesOption)
