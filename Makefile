@@ -2,6 +2,10 @@
 
 .PHONY: test
 test:
+	go test -v -short ./...
+
+.PHONY: testall
+testall:
 	go test -v ./...
 
 .PHONY: build
