@@ -71,7 +71,7 @@ func TestOpenRepository(t *testing.T) {
 
 func TestSearchCommits(t *testing.T) {
 	djangoRepository := openTestRepository("django")
-	maxLimit := 50
+	maxLimit := 15
 
 	testCases := []struct {
 		repository *git.Repository
@@ -104,9 +104,9 @@ func TestSearchCommits(t *testing.T) {
 				Since:    time.Date(2012, 4, 1, 0, 0, 0, 0, time.UTC),
 				Until:    time.Date(2012, 5, 1, 0, 0, 0, 0, time.UTC),
 				Interval: time.Hour * 24,
-				Limit:    20,
+				Limit:    7,
 			},
-			count: 20,
+			count: 7,
 		},
 		{
 			repository: djangoRepository,
