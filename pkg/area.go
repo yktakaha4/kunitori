@@ -1,7 +1,6 @@
 package pkg
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"math"
@@ -26,7 +25,7 @@ func AllocateAreas(areaInfo *AreaInfo, result *CountLinesResult) ([]*AreaAuthor,
 	log.Printf("start GetAreaAuthors: areaInfo=%+v, result=%+v", areaInfo, result)
 
 	if len(result.LinesByAuthor) == 0 {
-		return nil, errors.New("CountLinesResult is empty")
+		return []*AreaAuthor{}, nil
 	}
 
 	totalAuthors, totalLines := 0, 0
@@ -92,6 +91,7 @@ func AllocateAreas(areaInfo *AreaInfo, result *CountLinesResult) ([]*AreaAuthor,
 
 		if author == "" {
 			log.Printf("skip: area=%v, areaRatio=%v", area.Name, areaInfo)
+			continue
 		}
 
 		foundAuthorIndex := -1

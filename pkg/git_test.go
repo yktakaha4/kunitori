@@ -351,6 +351,10 @@ func testDataPath(name string) string {
 	return filepath.Join(rootPath(), "test", "testdata", name)
 }
 
+func testOutPath(name string) string {
+	return filepath.Join(rootPath(), "test", "out", name)
+}
+
 func openTestRepository(name string) *git.Repository {
 	path := testDataPath(name)
 

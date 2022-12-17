@@ -1,13 +1,47 @@
 package pkg
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"os"
+	"regexp"
 	"testing"
+	"time"
 )
 
 func TestGenerate(t *testing.T) {
+	options := GenerateOptions{
+		RepositoryPath: testDataPath("django"),
+		Region:         "JP",
+		SearchCommitsOptions: &SearchCommitsOptions{
+			Since:    time.Date(2021, 10, 1, 0, 0, 0, 0, time.UTC),
+			Until:    time.Date(2021, 10, 30, 23, 59, 59, 0, time.UTC),
+			Interval: time.Hour * 24 * 7,
+			Limit:    3,
+		},
+		CountLinesOption: &CountLinesOption{
+			Filters: []regexp.Regexp{
+				*regexp.MustCompile("^django/apps/.+\\.py$"),
+				*regexp.MustCompile("^\\w+\\.rst$"),
+			},
+			AuthorRegexes: []AuthorRegex{},
+		},
+	}
 
+	result, err := Generate(&options)
+	assert.NoError(t, err)
+
+	serialized, err := json.Marshal(result)
+	assert.NoError(t, err)
+
+	generateJsonFilePath := testOutPath("generate.json")
+
+	file, err := os.Create(generateJsonFilePath)
+	assert.NoError(t, err)
+
+	_, err = file.Write(serialized)
+	assert.NoError(t, err)
 }
 
 func TestGetSource(t *testing.T) {

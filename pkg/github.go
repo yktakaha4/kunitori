@@ -25,12 +25,16 @@ func ShowSlowMessage() {
 
 func FindLoginByEmail(email string) (string, error) {
 	// https://docs.github.com/ja/rest/search?apiVersion=2022-11-28#search-users
-	sleep := 6
+	sleep := 7
 	if IsGitHubAccessTokenProvided() {
-		sleep = 2
+		sleep = 3
 	}
 
-	log.Printf("start FindLoginByEmailL: email=%v, sleep=%v", email, sleep)
+	if email == "" {
+		return "", nil
+	}
+
+	log.Printf("start FindLoginByEmail: email=%v, sleep=%v", email, sleep)
 
 	gitHubNoReplyEmailRegex := regexp.MustCompile("@users\\.noreply\\.github\\.com$")
 
