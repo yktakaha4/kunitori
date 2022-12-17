@@ -113,6 +113,10 @@ func main() {
 			filterRegexes = append(filterRegexes, *regex)
 		}
 
+		if len(filterRegexes) == 0 {
+			filterRegexes = append(filterRegexes, *regexp.MustCompile(".+"))
+		}
+
 		authorRegexes := make([]pkg.AuthorRegex, 0)
 		for _, author := range authors {
 			parts := strings.Split(author, "=")
