@@ -145,19 +145,22 @@ func TestCountLines(t *testing.T) {
 	djangoHeadCommit := getHeadCommit(djangoRepository)
 
 	testCases := []struct {
-		commit  *object.Commit
-		options *CountLinesOption
-		results []*CountLinesResult
+		repository *git.Repository
+		commit     *object.Commit
+		options    *CountLinesOption
+		results    []*CountLinesResult
 	}{
 		{
-			commit: djangoHeadCommit,
+			repository: djangoRepository,
+			commit:     djangoHeadCommit,
 			options: &CountLinesOption{
 				Filters:       []regexp.Regexp{},
 				AuthorRegexes: []AuthorRegex{},
 			},
 		},
 		{
-			commit: djangoHeadCommit,
+			repository: djangoRepository,
+			commit:     djangoHeadCommit,
 			options: &CountLinesOption{
 				Filters: []regexp.Regexp{
 					*regexp.MustCompile("^setup\\.py$"),
@@ -178,6 +181,16 @@ func TestCountLines(t *testing.T) {
 						"ops@masked.com":          6,
 						"timograham@masked.com":   1,
 					},
+					NameByAuthor: map[string]string{
+						"adrian@masked.com":       "Adrian Holovaty",
+						"carl@masked.com":         "Carl Meyer",
+						"carlton@masked.com":      "Carlton Gibson",
+						"florian@masked.com":      "Florian Apolloner",
+						"jacob@masked.com":        "Jacob Kaplan-Moss",
+						"jon.dufresne@masked.com": "Jon Dufresne",
+						"ops@masked.com":          "django-bot",
+						"timograham@masked.com":   "Tim Graham",
+					},
 					MatchedFiles: []string{
 						"setup.py",
 					},
@@ -185,7 +198,8 @@ func TestCountLines(t *testing.T) {
 			},
 		},
 		{
-			commit: djangoHeadCommit,
+			repository: djangoRepository,
+			commit:     djangoHeadCommit,
 			options: &CountLinesOption{
 				Filters: []regexp.Regexp{
 					*regexp.MustCompile("^setup\\.py$"),
@@ -215,6 +229,12 @@ func TestCountLines(t *testing.T) {
 						"florian@masked.com": 3,
 						"otherGroup":         10,
 					},
+					NameByAuthor: map[string]string{
+						"aGroup":             "Adrian Holovaty",
+						"cGroup":             "Carlton Gibson",
+						"florian@masked.com": "Florian Apolloner",
+						"otherGroup":         "Tim Graham",
+					},
 					MatchedFiles: []string{
 						"setup.py",
 					},
@@ -222,7 +242,8 @@ func TestCountLines(t *testing.T) {
 			},
 		},
 		{
-			commit: djangoHeadCommit,
+			repository: djangoRepository,
+			commit:     djangoHeadCommit,
 			options: &CountLinesOption{
 				Filters: []regexp.Regexp{
 					*regexp.MustCompile("^django/__(init|main)__\\.py$|^django/shortcuts\\.py$"),
@@ -249,6 +270,22 @@ func TestCountLines(t *testing.T) {
 						"timograham@masked.com":       11,
 						"vytis.banaitis@masked.com":   1,
 					},
+					NameByAuthor: map[string]string{
+						"alex.gaynor@masked.com":      "Alex Gaynor",
+						"anton.samarchyan@masked.com": "Anton Samarchyan",
+						"aymeric.augustin@masked.com": "Aymeric Augustin",
+						"carlton.gibson@masked.com":   "Carlton Gibson",
+						"claude@masked.com":           "Claude Paroz",
+						"dilyanpalauzov@masked.com":   "Дилян Палаузов",
+						"dizballanze@masked.com":      "dizballanze",
+						"info@masked.com":             "Martin Thoma",
+						"marten.knbk@masked.com":      "Marten Kenbeek",
+						"ops@masked.com":              "django-bot",
+						"ryan@masked.com":             "Ryan Hiebert",
+						"smithdc@masked.com":          "David Smith",
+						"timograham@masked.com":       "Tim Graham",
+						"vytis.banaitis@masked.com":   "Vytis Banaitis",
+					},
 					MatchedFiles: []string{
 						"django/__init__.py",
 						"django/__main__.py",
@@ -262,12 +299,12 @@ func TestCountLines(t *testing.T) {
 	maskRegex := regexp.MustCompile("@.+$")
 
 	for index, testCase := range testCases {
-		if index > 0 && testing.Short() {
+		if index > 1 && testing.Short() {
 			t.SkipNow()
 		}
 
 		t.Run(fmt.Sprintf("case_%v", index), func(t *testing.T) {
-			results, err := CountLines(testCase.commit, testCase.options)
+			results, err := CountLines(testCase.repository, testCase.commit, testCase.options)
 			assert.NoError(t, err)
 			assert.Equal(t, len(testCase.results), len(results))
 
@@ -281,8 +318,14 @@ func TestCountLines(t *testing.T) {
 						maskedKey := maskRegex.ReplaceAllString(key, "@masked.com")
 						maskedLinesByAuthor[maskedKey] = value
 					}
-
 					assert.Equal(t, expected.LinesByAuthor, maskedLinesByAuthor)
+
+					maskedNameByAuthor := map[string]string{}
+					for key, value := range result.NameByAuthor {
+						maskedKey := maskRegex.ReplaceAllString(key, "@masked.com")
+						maskedNameByAuthor[maskedKey] = value
+					}
+					assert.Equal(t, expected.NameByAuthor, maskedNameByAuthor)
 				})
 			}
 		})

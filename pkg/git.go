@@ -169,16 +169,18 @@ type CountLinesOption struct {
 type CountLinesResult struct {
 	Filter        regexp.Regexp
 	LinesByAuthor map[string]int
+	NameByAuthor  map[string]string
 	MatchedFiles  []string
 }
 
-func CountLines(commit *object.Commit, options *CountLinesOption) ([]*CountLinesResult, error) {
+func CountLines(repository *git.Repository, commit *object.Commit, options *CountLinesOption) ([]*CountLinesResult, error) {
 	log.Printf("start CountLines: commit=%+v, options=%+v", commit.Hash, options)
 	results := make([]*CountLinesResult, 0)
 	for _, filter := range options.Filters {
 		results = append(results, &CountLinesResult{
 			Filter:        filter,
 			LinesByAuthor: map[string]int{},
+			NameByAuthor:  map[string]string{},
 			MatchedFiles:  make([]string, 0),
 		})
 	}
@@ -220,6 +222,15 @@ func CountLines(commit *object.Commit, options *CountLinesOption) ([]*CountLines
 					}
 				}
 				result.LinesByAuthor[author] += 1
+
+				if result.NameByAuthor[author] == "" {
+					lineCommit, err := repository.CommitObject(line.Hash)
+					if err != nil {
+						return err
+					}
+					result.NameByAuthor[author] = lineCommit.Author.Name
+				}
+
 				linesCount++
 			}
 		}
