@@ -156,9 +156,14 @@ func SearchCommits(repository *git.Repository, options *SearchCommitsOptions) ([
 	return commits, nil
 }
 
+type AuthorRegex struct {
+	Condition regexp.Regexp
+	Author    string
+}
+
 type CountLinesOption struct {
 	Filters       []regexp.Regexp
-	AuthorRegexes map[string]regexp.Regexp
+	AuthorRegexes []AuthorRegex
 }
 
 type CountLinesResult struct {
@@ -208,9 +213,9 @@ func CountLines(commit *object.Commit, options *CountLinesOption) ([]*CountLines
 
 			for _, line := range blameResult.Lines {
 				author := line.Author
-				for aut, autRegex := range options.AuthorRegexes {
-					if autRegex.MatchString(line.Author) {
-						author = aut
+				for _, autRegex := range options.AuthorRegexes {
+					if autRegex.Condition.MatchString(line.Author) {
+						author = autRegex.Author
 						break
 					}
 				}

@@ -156,7 +156,7 @@ func TestCountLines(t *testing.T) {
 			commit: djangoHeadCommit,
 			options: &CountLinesOption{
 				Filters:       []regexp.Regexp{},
-				AuthorRegexes: map[string]regexp.Regexp{},
+				AuthorRegexes: []AuthorRegex{},
 			},
 		},
 		{
@@ -165,7 +165,7 @@ func TestCountLines(t *testing.T) {
 				Filters: []regexp.Regexp{
 					*regexp.MustCompile("^setup\\.py$"),
 				},
-				AuthorRegexes: map[string]regexp.Regexp{},
+				AuthorRegexes: []AuthorRegex{},
 			},
 			results: []*CountLinesResult{
 				{
@@ -191,9 +191,46 @@ func TestCountLines(t *testing.T) {
 			commit: djangoHeadCommit,
 			options: &CountLinesOption{
 				Filters: []regexp.Regexp{
+					*regexp.MustCompile("^setup\\.py$"),
+				},
+				AuthorRegexes: []AuthorRegex{
+					{
+						Condition: *regexp.MustCompile("^a.+"),
+						Author:    "aGroup",
+					},
+					{
+						Condition: *regexp.MustCompile("^c.+"),
+						Author:    "cGroup",
+					},
+					{
+						Condition: *regexp.MustCompile("^[^f].+"),
+						Author:    "otherGroup",
+					},
+				},
+			},
+			results: []*CountLinesResult{
+				{
+					Filter: *regexp.MustCompile("^setup\\.py$"),
+					// https://github.com/django/django/blame/a1bcdc94da6d597c51b4eca0411a97a6460b482e/setup.py
+					LinesByAuthor: map[string]int{
+						"aGroup":             1,
+						"cGroup":             41,
+						"florian@masked.com": 3,
+						"otherGroup":         10,
+					},
+					MatchedFiles: []string{
+						"setup.py",
+					},
+				},
+			},
+		},
+		{
+			commit: djangoHeadCommit,
+			options: &CountLinesOption{
+				Filters: []regexp.Regexp{
 					*regexp.MustCompile("^django/__(init|main)__\\.py$|^django/shortcuts\\.py$"),
 				},
-				AuthorRegexes: map[string]regexp.Regexp{},
+				AuthorRegexes: []AuthorRegex{},
 			},
 			results: []*CountLinesResult{
 				{
