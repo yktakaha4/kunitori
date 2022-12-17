@@ -17,7 +17,7 @@ const KunitoriSkipRequestGitHubApi = "KUNITORI_SKIP_REQUEST_GITHUB_API"
 
 func ShowSlowMessage() {
 	if !IsGitHubAccessTokenProvided() {
-		println(fmt.Sprintf(
+		fmt.Println(fmt.Sprintf(
 			"warning: If the environment variable %v is not set, API searches will be very slow.",
 			GitHubAccessTokenKey,
 		))

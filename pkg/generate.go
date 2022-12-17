@@ -76,7 +76,7 @@ func Generate(options *GenerateOptions) (*GenerateResult, error) {
 		}(tempDir)
 
 		repositoryLocation = options.RepositoryUrl
-		println(fmt.Sprintf("open repository: url=%v", options.RepositoryUrl))
+		fmt.Println(fmt.Sprintf("open repository: url=%v", options.RepositoryUrl))
 
 		repository, err = CloneRepository(options.RepositoryUrl, tempDir)
 		if err != nil {
@@ -84,7 +84,7 @@ func Generate(options *GenerateOptions) (*GenerateResult, error) {
 		}
 	} else if options.RepositoryPath != "" {
 		repositoryLocation = options.RepositoryPath
-		println(fmt.Sprintf("open repository: path=%v", options.RepositoryPath))
+		fmt.Println(fmt.Sprintf("open repository: path=%v", options.RepositoryPath))
 
 		repository, err = OpenRepository(options.RepositoryPath)
 		if err != nil {
@@ -92,20 +92,20 @@ func Generate(options *GenerateOptions) (*GenerateResult, error) {
 		}
 	}
 
-	println("search commit...")
+	fmt.Println("search commit...")
 
 	commits, err := SearchCommits(repository, options.SearchCommitsOptions)
 	if err != nil {
 		return nil, err
 	}
 
-	println(fmt.Sprintf("matched commits: count=%v", len(commits)))
+	fmt.Println(fmt.Sprintf("matched commits: count=%v", len(commits)))
 
 	gitHubLoginNameCache := map[string]*string{}
 
 	resultCommits := make([]GenerateResultCommit, 0)
 	for index, commit := range commits {
-		println(fmt.Sprintf(
+		fmt.Println(fmt.Sprintf(
 			"count lines: progress=%v/%v, hash=%v",
 			index+1,
 			len(commits),

@@ -42,9 +42,9 @@ type SearchCommitsOptions struct {
 	Limit    int
 }
 
-func SearchCommits(repository *git.Repository, options *SearchCommitsOptions) ([]*object.Commit, error) {
-	maxLimit := 15
+const SearchCommitMaxLimit = 15
 
+func SearchCommits(repository *git.Repository, options *SearchCommitsOptions) ([]*object.Commit, error) {
 	log.Printf("start SearchCommits: repository=%+v, options=%+v", repository, options)
 
 	reference, err := repository.Head()
@@ -117,8 +117,8 @@ func SearchCommits(repository *git.Repository, options *SearchCommitsOptions) ([
 		interval = 0
 	}
 
-	limit := maxLimit
-	if options.Limit > 0 && options.Limit < maxLimit {
+	limit := SearchCommitMaxLimit
+	if options.Limit > 0 && options.Limit < SearchCommitMaxLimit {
 		limit = options.Limit
 	}
 
