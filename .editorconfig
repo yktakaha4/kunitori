@@ -1,0 +1,41 @@
+# EditorConfig helps developers define and maintain consistent
+# coding styles between different editors and IDEs
+# http://editorconfig.org
+
+root = true
+
+[*]
+indent_style = space
+indent_size = 2
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[Makefile]
+indent_style = tab
+
+# [*]
+# [*.{js,py}]
+[*.py]
+indent_size = 4
+
+[*.go]
+indent_size = 4
+indent_style = tab
+
+# [Makefile]
+# [lib/**.js]
+# [{package.json,.travis.yml}]
+
+
+# Universal Properties - те, что для всех форматов файлов
+#
+# indent_style = space # tab | space
+# indent_size = 4 # int | tab
+# tab_width = 4 # a positive integer (defaults indent_size when indent_size is a number)
+# end_of_line = lf #  lf | cr | lf
+# charset = utf-8 # latin1 | utf-8 | utf-16be | utf-16le
+# trim_trailing_whitespace = true # true | false
+# insert_final_newline = true | false
+# max_line_length = 80 # positive int, only emax or vim
