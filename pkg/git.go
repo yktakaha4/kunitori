@@ -23,6 +23,17 @@ func CloneRepository(url string, path string) (*git.Repository, error) {
 	return repository, nil
 }
 
+func OpenRepository(path string) (*git.Repository, error) {
+	log.Printf("start OpenRepository: path=%+v", path)
+
+	repository, err := git.PlainOpen(path)
+	if err != nil {
+		return nil, err
+	}
+
+	return repository, nil
+}
+
 type SearchCommitsOptions struct {
 	Until    time.Time
 	Interval time.Duration
