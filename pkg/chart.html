@@ -13,6 +13,15 @@
         return;
       }
 
+      let maxAuthorRankCount = 0;
+      for (const commit of chartData.commits) {
+        for (const lineCount of commit.lineCounts) {
+          for (const area of lineCount.areas) {
+            maxAuthorRankCount = Math.max(area.authorRank, maxAuthorRankCount);
+          }
+        }
+      }
+
       const options = {
         region: 'JP',
         displayMode: 'regions',
@@ -27,6 +36,9 @@
           '#0000ff',
           '#8000ff',
         ],
+        colorAxis: {
+          maxValue: maxAuthorRankCount,
+        },
       };
 
       const lineCount = chartData.commits[selectedCommitIndex].lineCounts[selectedFilterIndex];
@@ -47,13 +59,22 @@
       google.visualization.events.addListener(chart, 'select', () => {
         const selection = chart.getSelection()[0];
         if (selection) {
-          selectedRank = selection.row;
+          selectedRank = rows[selection.row][1];
         } else {
           selectedRank = -1;
         }
+        updateRankingSelection();
       });
 
       updateRanking();
+    }
+
+    function updateRankingSelection() {
+      const rankingEl = document.getElementById("ranking");
+      rankingEl.querySelectorAll("tr").forEach((el) => el.classList.remove("selected"));
+      if (selectedRank > -1) {
+        rankingEl.querySelector(`tr:nth-child(${selectedRank+1})`).classList.add("selected");
+      }
     }
 
     function updateRanking() {
@@ -70,6 +91,9 @@
         return cnt + author.lineCount;
       }, 0);
       let cumulaviteLineCount = 0;
+
+      const totalLineEl = document.getElementById("totalLine");
+      totalLineEl.innerText = totalLineCount.toLocaleString();
 
       for (const [i, author] of lineCount.authors.entries()) {
         let authorName = esc(author.email);
@@ -131,15 +155,16 @@
       const filterEl = document.getElementById("filter");
       filterEl.innerHTML = '';
 
+      filterEl.onchange = () => {
+        selectedFilterIndex = filterEl.selectedIndex;
+        selectedRank = -1;
+        drawRegionsMap();
+      };
+
       const commit = chartData.commits[selectedCommitIndex];
       for (const lineCount of commit.lineCounts) {
         const optEl = document.createElement("option");
         optEl.innerText = lineCount.filterRegex;
-        optEl.onchange = () => {
-          selectedFilterIndex = filterEl.selectedIndex;
-          selectedRank = -1;
-          drawRegionsMap();
-        };
         filterEl.append(optEl);
       }
     }
@@ -195,30 +220,41 @@
     #ranking tr td:nth-child(3) {
       text-align: center;
     }
+    .info th {
+      text-align: right;
+    }
+    #ranking tr.selected {
+      background-color: gold;
+    }
   </style>
 </head>
 <body>
 <div id="regions_div" style="width: 100%; height: 100%;"></div>
 <div style="position: fixed; right: 0; top: 0; margin: 1em; padding: 1em; background-color: white; max-height: 60vh; overflow-y: auto;">
-  <table id="ranking">
+  <table class="info">
+    <tr>
+      <th>Total lines</th>
+      <td><span id="totalLine"></span></td>
+    </tr>
   </table>
+  <table id="ranking"></table>
 </div>
 <div style="position: fixed; right: 0; bottom: 0; margin: 1em; padding: 1em; background-color: white; max-height: 20vh; overflow-y: auto;">
-  <table>
+  <table class="info">
     <tr>
-      <td>Repository</td>
+      <th>Repository</th>
       <td><span id="repository"></span></td>
     </tr>
     <tr>
-      <td>Generated</td>
+      <th>Generated</th>
       <td><span id="generated"></span></td>
     </tr>
     <tr>
-      <td>Commit</td>
+      <th>Commit</th>
       <td><select id="commit"></select></td>
     </tr>
     <tr>
-      <td>Filter</td>
+      <th>Filter</th>
       <td><select id="filter"></select></td>
     </tr>
   </table>
