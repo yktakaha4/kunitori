@@ -194,7 +194,7 @@ func GetAreaInfo(region string) (*AreaInfo, error) {
 				{Name: "Tokushima", Size: 4147},
 				{Name: "Kagawa", Size: 1877},
 				{Name: "Ehime", Size: 5676},
-				{Name: "Kouchi", Size: 7104},
+				{Name: "Kochi", Size: 7104},
 				{Name: "Fukuoka", Size: 4986},
 				{Name: "Saga", Size: 2441},
 				{Name: "Nagasaki", Size: 4132},
