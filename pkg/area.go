@@ -143,6 +143,15 @@ type AreaInfo struct {
 
 func GetAreaInfo(region string) (*AreaInfo, error) {
 	switch region {
+	case "__TEST":
+		return &AreaInfo{
+			Region: region,
+			Areas: []Area{
+				{Name: "Area30", Size: 30},
+				{Name: "Area20", Size: 20},
+				{Name: "Area10", Size: 10},
+			},
+		}, nil
 	case "JP":
 		return &AreaInfo{
 			Region: region,
