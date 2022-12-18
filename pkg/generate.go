@@ -73,7 +73,6 @@ func ShowSlowMessage() {
 
 func Generate(options *GenerateOptions) (*GenerateResult, error) {
 	var repository *git.Repository
-	var repositoryLocation string
 
 	ShowSlowMessage()
 
@@ -94,7 +93,7 @@ func Generate(options *GenerateOptions) (*GenerateResult, error) {
 			}
 		}(tempDir)
 
-		repositoryLocation = options.RepositoryUrl
+		repositoryLocation := options.RepositoryUrl
 		repositoryLocation, err = filepath.Abs(repositoryLocation)
 		if err != nil {
 			return nil, err
@@ -106,7 +105,7 @@ func Generate(options *GenerateOptions) (*GenerateResult, error) {
 			return nil, err
 		}
 	} else if options.RepositoryPath != "" {
-		repositoryLocation = options.RepositoryPath
+		repositoryLocation := options.RepositoryPath
 		repositoryLocation, err = filepath.Abs(repositoryLocation)
 		if err != nil {
 			return nil, err
@@ -120,6 +119,16 @@ func Generate(options *GenerateOptions) (*GenerateResult, error) {
 	} else {
 		return nil, errors.New("should specify url or path")
 	}
+
+	repositoryRemoteLocation, err := GetRemoteLocation(repository)
+	if err != nil {
+		fmt.Println(err)
+	}
+	if repositoryRemoteLocation == "" {
+		repositoryRemoteLocation = "unknown"
+	}
+
+	fmt.Println(fmt.Sprintf("location: remote=%v", repositoryRemoteLocation))
 
 	fmt.Println(fmt.Sprintf(
 		"search commit: since=%v, until=%v, interval=%v, limit=%v",
@@ -266,17 +275,29 @@ func Generate(options *GenerateOptions) (*GenerateResult, error) {
 	}
 
 	return &GenerateResult{
-		Repository:  repositoryLocation,
-		Source:      GetSource(repositoryLocation),
+		Repository:  GetRemoteUrl(repositoryRemoteLocation),
+		Source:      GetSource(repositoryRemoteLocation),
 		GeneratedAt: time.Now().UTC(),
 		Commits:     resultCommits,
 	}, nil
 }
 
+var gitHubRegex = regexp.MustCompile("^https://github\\.com/")
+var gitHubSshRegex = regexp.MustCompile("^git@github\\.com:")
+var gitSuffixRegex = regexp.MustCompile("\\.git$")
+
 func GetSource(value string) string {
-	gitHubRegex := regexp.MustCompile("^https://github\\.com/")
-	if gitHubRegex.MatchString(value) {
+	if gitHubRegex.MatchString(value) || gitHubSshRegex.MatchString(value) {
 		return "github"
 	}
 	return "unknown"
+}
+
+func GetRemoteUrl(value string) string {
+	if gitHubRegex.MatchString(value) {
+		return gitSuffixRegex.ReplaceAllString(value, "")
+	} else if gitHubSshRegex.MatchString(value) {
+		return gitSuffixRegex.ReplaceAllString("https://github.com/"+gitHubSshRegex.ReplaceAllString(value, ""), "")
+	}
+	return value
 }

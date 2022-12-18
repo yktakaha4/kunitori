@@ -67,6 +67,14 @@ func TestOpenRepository(t *testing.T) {
 	}
 }
 
+func TestGetRemoteLocation(t *testing.T) {
+	djangoRepository := openTestRepository("django")
+
+	location, err := GetRemoteLocation(djangoRepository)
+	assert.NoError(t, err)
+	assert.Equal(t, "https://github.com/django/django.git", location)
+}
+
 func TestSearchCommits(t *testing.T) {
 	djangoRepository := openTestRepository("django")
 

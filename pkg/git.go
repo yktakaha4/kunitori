@@ -3,6 +3,7 @@ package pkg
 import (
 	"bufio"
 	"bytes"
+	"errors"
 	"fmt"
 	"github.com/dlclark/regexp2"
 	"github.com/go-git/go-git/v5"
@@ -40,6 +41,19 @@ func OpenRepository(path string) (*git.Repository, error) {
 	}
 
 	return repository, nil
+}
+
+func GetRemoteLocation(repository *git.Repository) (string, error) {
+	remote, err := repository.Remote("origin")
+	if err != nil {
+		return "", err
+	}
+	remoteConfig := remote.Config()
+	if len(remoteConfig.URLs[0]) > 0 {
+		return remoteConfig.URLs[0], nil
+	} else {
+		return "", errors.New("no url found")
+	}
 }
 
 type SearchCommitsOptions struct {

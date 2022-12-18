@@ -56,6 +56,10 @@ func TestGetSource(t *testing.T) {
 			source: "github",
 		},
 		{
+			value:  "git@github.com:go-git/go-git.git",
+			source: "github",
+		},
+		{
 			value:  "/usr/home/repos",
 			source: "unknown",
 		},
@@ -69,6 +73,33 @@ func TestGetSource(t *testing.T) {
 		t.Run(fmt.Sprintf("case_%v", index), func(t *testing.T) {
 			source := GetSource(testCase.value)
 			assert.Equal(t, testCase.source, source)
+		})
+	}
+}
+
+func TestGetRemoteUrl(t *testing.T) {
+	testCases := []struct {
+		value     string
+		remoteUrl string
+	}{
+		{
+			value:     "https://github.com/yktakaha4/eduterm.git",
+			remoteUrl: "https://github.com/yktakaha4/eduterm",
+		},
+		{
+			value:     "git@github.com:go-git/go-git.git",
+			remoteUrl: "https://github.com/go-git/go-git",
+		},
+		{
+			value:     "/usr/home/repos",
+			remoteUrl: "/usr/home/repos",
+		},
+	}
+
+	for index, testCase := range testCases {
+		t.Run(fmt.Sprintf("case_%v", index), func(t *testing.T) {
+			remoteUrl := GetRemoteUrl(testCase.value)
+			assert.Equal(t, testCase.remoteUrl, remoteUrl)
 		})
 	}
 }
