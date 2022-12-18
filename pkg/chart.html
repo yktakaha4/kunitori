@@ -60,8 +60,6 @@
         const selection = chart.getSelection()[0];
         if (selection) {
           selectedRank = rows[selection.row][1];
-        } else {
-          selectedRank = -1;
         }
         updateRankingSelection();
       });
@@ -212,8 +210,8 @@
 
       commitEl.onchange = () => {
         selectedCommitIndex = commitEl.selectedIndex;
-        selectedRank = -1;
         drawRegionsMap();
+        updateRankingSelection();
       };
 
       if (chartData.commits.length > 0) {
