@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"fmt"
+	"github.com/dlclark/regexp2"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/stretchr/testify/assert"
@@ -155,7 +156,7 @@ func TestCountLines(t *testing.T) {
 			repository: djangoRepository,
 			commit:     djangoHeadCommit,
 			options: &CountLinesOption{
-				Filters:       []regexp.Regexp{},
+				Filters:       []*regexp2.Regexp{},
 				AuthorRegexes: []AuthorRegex{},
 			},
 		},
@@ -163,14 +164,14 @@ func TestCountLines(t *testing.T) {
 			repository: djangoRepository,
 			commit:     djangoHeadCommit,
 			options: &CountLinesOption{
-				Filters: []regexp.Regexp{
-					*regexp.MustCompile("^setup\\.py$"),
+				Filters: []*regexp2.Regexp{
+					regexp2.MustCompile("^setup\\.py$", 0),
 				},
 				AuthorRegexes: []AuthorRegex{},
 			},
 			results: []*CountLinesResult{
 				{
-					Filter: *regexp.MustCompile("^setup\\.py$"),
+					Filter: regexp2.MustCompile("^setup\\.py$", 0),
 					// https://github.com/django/django/blame/a1bcdc94da6d597c51b4eca0411a97a6460b482e/setup.py
 					LinesByAuthor: map[string]int{
 						"adrian@masked.com":       1,
@@ -202,27 +203,27 @@ func TestCountLines(t *testing.T) {
 			repository: djangoRepository,
 			commit:     djangoHeadCommit,
 			options: &CountLinesOption{
-				Filters: []regexp.Regexp{
-					*regexp.MustCompile("^setup\\.py$"),
+				Filters: []*regexp2.Regexp{
+					regexp2.MustCompile("^setup\\.py$", 0),
 				},
 				AuthorRegexes: []AuthorRegex{
 					{
-						Condition: *regexp.MustCompile("^a.+"),
+						Condition: regexp2.MustCompile("^a.+", 0),
 						Author:    "aGroup",
 					},
 					{
-						Condition: *regexp.MustCompile("^c.+"),
+						Condition: regexp2.MustCompile("^c.+", 0),
 						Author:    "cGroup",
 					},
 					{
-						Condition: *regexp.MustCompile("^[^f].+"),
+						Condition: regexp2.MustCompile("^[^f].+", 0),
 						Author:    "otherGroup",
 					},
 				},
 			},
 			results: []*CountLinesResult{
 				{
-					Filter: *regexp.MustCompile("^setup\\.py$"),
+					Filter: regexp2.MustCompile("^setup\\.py$", 0),
 					// https://github.com/django/django/blame/a1bcdc94da6d597c51b4eca0411a97a6460b482e/setup.py
 					LinesByAuthor: map[string]int{
 						"aGroup":             1,
@@ -246,14 +247,14 @@ func TestCountLines(t *testing.T) {
 			repository: djangoRepository,
 			commit:     djangoHeadCommit,
 			options: &CountLinesOption{
-				Filters: []regexp.Regexp{
-					*regexp.MustCompile("^django/__(init|main)__\\.py$|^django/shortcuts\\.py$"),
+				Filters: []*regexp2.Regexp{
+					regexp2.MustCompile("^django/__(init|main)__\\.py$|^django/shortcuts\\.py$", 0),
 				},
 				AuthorRegexes: []AuthorRegex{},
 			},
 			results: []*CountLinesResult{
 				{
-					Filter: *regexp.MustCompile("^django/__(init|main)__\\.py$|^django/shortcuts\\.py$"),
+					Filter: regexp2.MustCompile("^django/__(init|main)__\\.py$|^django/shortcuts\\.py$", 0),
 					// https://github.com/django/django/tree/a1bcdc94da6d597c51b4eca0411a97a6460b482e/django
 					LinesByAuthor: map[string]int{
 						"alex.gaynor@masked.com":      79,
@@ -312,7 +313,7 @@ func TestCountLines(t *testing.T) {
 			for index, result := range results {
 				t.Run(fmt.Sprintf("result_%v", index), func(t *testing.T) {
 					expected := testCase.results[index]
-					assert.Equal(t, expected.Filter, result.Filter)
+					assert.Equal(t, expected.Filter.String(), result.Filter.String())
 
 					maskedLinesByAuthor := map[string]int{}
 					for key, value := range result.LinesByAuthor {
@@ -340,8 +341,8 @@ func TestCountLines__diff(t *testing.T) {
 	djangoHeadCommit := getHeadCommit(djangoRepository)
 
 	option := CountLinesOption{
-		Filters: []regexp.Regexp{
-			*regexp.MustCompile("^\\w+\\.\\w+$"),
+		Filters: []*regexp2.Regexp{
+			regexp2.MustCompile("^\\w+\\.\\w+$", 0),
 		},
 		AuthorRegexes: []AuthorRegex{},
 	}
@@ -363,8 +364,8 @@ func TestBlameWithGitCommand(t *testing.T) {
 	djangoHeadCommit := getHeadCommit(djangoRepository)
 
 	option := CountLinesOption{
-		Filters: []regexp.Regexp{
-			*regexp.MustCompile("^setup\\.\\w+$"),
+		Filters: []*regexp2.Regexp{
+			regexp2.MustCompile("^setup\\.\\w+$", 0),
 		},
 		AuthorRegexes: []AuthorRegex{},
 	}

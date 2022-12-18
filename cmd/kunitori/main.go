@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/dlclark/regexp2"
 	"github.com/yktakaha4/kunitori/pkg"
 	"io"
 	"log"
 	"os"
 	"path"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"time"
 )
@@ -105,18 +105,18 @@ func main() {
 			}
 		}
 
-		filterRegexes := make([]regexp.Regexp, 0)
+		filterRegexes := make([]*regexp2.Regexp, 0)
 		for _, filter := range filters {
-			regex, err := regexp.Compile(filter)
+			regex, err := regexp2.Compile(filter, 0)
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
 			}
-			filterRegexes = append(filterRegexes, *regex)
+			filterRegexes = append(filterRegexes, regex)
 		}
 
 		if len(filterRegexes) == 0 {
-			filterRegexes = append(filterRegexes, *regexp.MustCompile(".+"))
+			filterRegexes = append(filterRegexes, regexp2.MustCompile(".+", 0))
 		}
 
 		authorRegexes := make([]pkg.AuthorRegex, 0)
@@ -127,13 +127,13 @@ func main() {
 				os.Exit(1)
 			}
 
-			regex, err := regexp.Compile(parts[1])
+			regex, err := regexp2.Compile(parts[1], 0)
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
 			}
 			authorRegexes = append(authorRegexes, pkg.AuthorRegex{
-				Condition: *regex,
+				Condition: regex,
 				Author:    parts[0],
 			})
 		}

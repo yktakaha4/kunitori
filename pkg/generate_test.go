@@ -3,9 +3,9 @@ package pkg
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/dlclark/regexp2"
 	"github.com/stretchr/testify/assert"
 	"os"
-	"regexp"
 	"testing"
 	"time"
 )
@@ -23,9 +23,9 @@ func TestGenerate(t *testing.T) {
 			Limit:    3,
 		},
 		CountLinesOption: &CountLinesOption{
-			Filters: []regexp.Regexp{
-				*regexp.MustCompile("^django/apps/.+\\.py$"),
-				*regexp.MustCompile("^\\w+\\.rst$"),
+			Filters: []*regexp2.Regexp{
+				regexp2.MustCompile("^django/apps/.+\\.py$", 0),
+				regexp2.MustCompile("^\\w+\\.rst$", 0),
 			},
 			AuthorRegexes: []AuthorRegex{},
 		},

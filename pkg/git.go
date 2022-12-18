@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"github.com/dlclark/regexp2"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
@@ -163,17 +164,17 @@ func SearchCommits(repository *git.Repository, options *SearchCommitsOptions) ([
 }
 
 type AuthorRegex struct {
-	Condition regexp.Regexp
+	Condition *regexp2.Regexp
 	Author    string
 }
 
 type CountLinesOption struct {
-	Filters       []regexp.Regexp
+	Filters       []*regexp2.Regexp
 	AuthorRegexes []AuthorRegex
 }
 
 type CountLinesResult struct {
-	Filter        regexp.Regexp
+	Filter        *regexp2.Regexp
 	LinesByAuthor map[string]int
 	NameByAuthor  map[string]string
 	MatchedFiles  []string
@@ -205,7 +206,11 @@ func CountLines(repository *git.Repository, commit *object.Commit, options *Coun
 		}
 
 		for _, result := range results {
-			if !result.Filter.MatchString(file.Name) {
+			isMatch, err := result.Filter.MatchString(file.Name)
+			if err != nil {
+				return err
+			}
+			if !isMatch {
 				return nil
 			}
 
@@ -233,7 +238,11 @@ func CountLines(repository *git.Repository, commit *object.Commit, options *Coun
 			for _, line := range lines {
 				author := line.Author
 				for _, autRegex := range options.AuthorRegexes {
-					if autRegex.Condition.MatchString(line.Author) {
+					isMatch, err := autRegex.Condition.MatchString(line.Author)
+					if err != nil {
+						return err
+					}
+					if isMatch {
 						author = autRegex.Author
 						break
 					}
