@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"time"
 )
 
@@ -224,6 +225,14 @@ func Generate(options *GenerateOptions) (*GenerateResult, error) {
 					})
 				}
 			}
+
+			sort.SliceStable(notAllocatedAuthors, func(i, j int) bool {
+				if notAllocatedAuthors[i].LineCount == notAllocatedAuthors[j].LineCount {
+					return notAllocatedAuthors[i].Email < notAllocatedAuthors[j].Email
+				} else {
+					return notAllocatedAuthors[i].LineCount > notAllocatedAuthors[j].LineCount
+				}
+			})
 
 			lineCounts = append(lineCounts, GenerateResultCommitLineCount{
 				FilterRegex: result.Filter.String(),
