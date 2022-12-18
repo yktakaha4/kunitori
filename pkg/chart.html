@@ -84,8 +84,8 @@
         cumulaviteLineCount += author.lineCount;
 
         const values = [
-          i+1,
-          author.latestRank > 0 && author.rank !== author.latestRank ? author.latestRank : '-',
+          author.rank,
+          !!author.latestRank && (author.rank !== author.latestRank) ? author.latestRank : '-',
           authorName,
           author.lineCount.toLocaleString(),
           esc(formatter.format(author.lineCount / totalLineCount)),

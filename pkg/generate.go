@@ -234,7 +234,7 @@ func Generate(options *GenerateOptions) (*GenerateResult, error) {
 			})
 
 			for i, notAllocatedAuthor := range notAllocatedAuthors {
-				notAllocatedAuthor.Rank = len(authors) + i
+				notAllocatedAuthor.Rank = len(authors) + i + 1
 				notAllocatedAuthors[i] = notAllocatedAuthor
 			}
 
