@@ -38,7 +38,7 @@
       const rows = lineCount.areas.map((area) => {
         return [
           area.name,
-          area.authorRank,
+          area.latestAuthorRank ? area.latestAuthorRank : area.authorRank,
         ]});
       dataTable.addRows(rows);
 
@@ -62,30 +62,68 @@
       }
 
       const rankingEl = document.getElementById("ranking");
-      rankingEl.innerHTML = '<tr><th>#</th><th>Author</th><th>Lines</th></tr>';
+      rankingEl.innerHTML = '<tr><th colspan="2">#</th><th>Author</th><th>Lines</th><th colspan="2">Percentage</th></tr>';
 
       const lineCount = chartData.commits[selectedCommitIndex].lineCounts[selectedFilterIndex];
-      console.log(lineCount);
+
+      const totalLineCount = lineCount.authors.reduce((cnt, author) => {
+        return cnt + author.lineCount;
+      }, 0);
+      let cumulaviteLineCount = 0;
+
       for (const [i, author] of lineCount.authors.entries()) {
-        let authorName = author.email;
+        let authorName = esc(author.email);
         if (author.gitHubLogin) {
-          authorName = author.gitHubLogin;
+          authorName = `<a href="https://github.com/${esc(author.gitHubLogin)}" target="_blank">${esc(author.gitHubLogin)}</a>`;
         } else if (author.name) {
-          authorName = author.name;
+          authorName = esc(author.name);
         }
+
+        const formatter = new Intl.NumberFormat('ja', { style: 'percent', maximumFractionDigits: 2});
+
+        cumulaviteLineCount += author.lineCount;
+
         const values = [
           i+1,
+          author.latestRank > 0 && author.rank !== author.latestRank ? author.latestRank : '-',
           authorName,
           author.lineCount.toLocaleString(),
+          esc(formatter.format(author.lineCount / totalLineCount)),
+          esc(`(${formatter.format(cumulaviteLineCount / totalLineCount)})`),
         ];
 
         const trEl = document.createElement("tr");
         for (const value of values) {
           const tdEl = document.createElement("td");
-          tdEl.innerText = value;
+          tdEl.innerHTML = value;
           trEl.append(tdEl);
         }
         rankingEl.append(trEl);
+      }
+    }
+
+    function reRank() {
+      if (chartData.commits.length === 0) {
+        return;
+      }
+      const latestCommit = chartData.commits[0];
+      for (const latestLineCommit of latestCommit.lineCounts) {
+        const latestFilterRegex = latestLineCommit.filterRegex;
+        for (const commit of chartData.commits.slice(1)) {
+          const lineCount = commit.lineCounts.find((lineCount) => lineCount.filterRegex === latestFilterRegex);
+          if (!lineCount) {
+            continue;
+          }
+
+          for (const author of lineCount.authors) {
+            const latestAuthor = latestLineCommit.authors.find((latestAuthor) => author.email === latestAuthor.email)
+            author.latestRank = latestAuthor ? latestAuthor.rank : 0;
+          }
+          for (const area of lineCount.areas) {
+            const latestAuthor = latestLineCommit.authors.find((latestAuthor) => area.authorEmail === latestAuthor.email)
+            area.latestAuthorRank = latestAuthor ? latestAuthor.rank : 0;
+          }
+        }
       }
     }
 
@@ -111,6 +149,8 @@
     });
     window.onresize = drawRegionsMap;
     window.onload = () => {
+      reRank();
+
       const shortHash = (value) => value.substring(0, 7);
 
       document.getElementById("repository").innerText = chartData.repository;
@@ -138,11 +178,22 @@
 
       drawRegionsMap();
     };
+
+    function esc(unsafeText){
+      const text = document.createTextNode(unsafeText);
+      const p = document.createElement('p');
+      p.appendChild(text);
+      return p.innerHTML;
+    }
   </script>
   <title>Kunitori</title>
   <style>
-    #ranking div.selected {
-      color: gold;
+    #ranking td {
+      padding: 0.2em;
+      text-align: right;
+    }
+    #ranking tr td:nth-child(3) {
+      text-align: center;
     }
   </style>
 </head>
