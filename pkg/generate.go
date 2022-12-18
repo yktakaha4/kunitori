@@ -35,6 +35,7 @@ type GenerateResultCommitLineCountArea struct {
 
 type GenerateResultCommitLineCount struct {
 	FilterRegex string                                `json:"filterRegex"`
+	FileCount   int                                   `json:"fileCount"`
 	FileNames   []string                              `json:"fileNames"`
 	Areas       []GenerateResultCommitLineCountArea   `json:"areas"`
 	Authors     []GenerateResultCommitLineCountAuthor `json:"authors"`
@@ -183,9 +184,11 @@ func Generate(options *GenerateOptions) (*GenerateResult, error) {
 				}
 			}
 
+			fileNamesLimit := 100
 			lineCounts = append(lineCounts, GenerateResultCommitLineCount{
 				FilterRegex: result.Filter.String(),
-				FileNames:   result.MatchedFiles,
+				FileCount:   len(result.MatchedFiles),
+				FileNames:   result.MatchedFiles[:fileNamesLimit],
 				Areas:       areas,
 				Authors:     authors,
 			})

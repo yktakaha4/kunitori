@@ -96,7 +96,7 @@ func AllocateAreas(areaInfo *AreaInfo, result *CountLinesResult) ([]*AreaAuthor,
 		}
 
 		if author == "" {
-			log.Printf("skip: area=%v, areaRatio=%v", area.Name, areaInfo)
+			log.Printf("skip: area=%v, areaRatio=%v", area.Name, areaRatio)
 			continue
 		}
 
