@@ -274,6 +274,7 @@ func IsUseGitCommandProvided() bool {
 }
 
 var blameLineRegexp = regexp.MustCompile("^\\w+\\s\\d+\\)\\s")
+var invalidCharacterRegexp = regexp.MustCompile("\\W")
 
 func BlameWithGitCommand(repository *git.Repository, commit *object.Commit, file string) ([]*git.Line, error) {
 	workTree, err := repository.Worktree()
@@ -294,7 +295,7 @@ func BlameWithGitCommand(repository *git.Repository, commit *object.Commit, file
 	scanner := bufio.NewScanner(bytes.NewReader(blameResult))
 	for scanner.Scan() {
 		line := scanner.Text()
-		hashStr := strings.Split(line, " ")[0]
+		hashStr := invalidCharacterRegexp.ReplaceAllString(strings.Split(line, " ")[0], "")
 		if !plumbing.IsHash(hashStr) {
 			return nil, fmt.Errorf("%v is not hash", hashStr)
 		}
