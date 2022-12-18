@@ -221,7 +221,6 @@ func Generate(options *GenerateOptions) (*GenerateResult, error) {
 						Name:        result.NameByAuthor[email],
 						GitHubLogin: *gitHubLogin,
 						LineCount:   lineCount,
-						Rank:        -1,
 					})
 				}
 			}
@@ -233,6 +232,11 @@ func Generate(options *GenerateOptions) (*GenerateResult, error) {
 					return notAllocatedAuthors[i].LineCount > notAllocatedAuthors[j].LineCount
 				}
 			})
+
+			for i, notAllocatedAuthor := range notAllocatedAuthors {
+				notAllocatedAuthor.Rank = len(authors) + i
+				notAllocatedAuthors[i] = notAllocatedAuthor
+			}
 
 			lineCounts = append(lineCounts, GenerateResultCommitLineCount{
 				FilterRegex: result.Filter.String(),
