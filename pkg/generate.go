@@ -53,6 +53,21 @@ type GenerateResult struct {
 	Commits     []GenerateResultCommit `json:"commits"`
 }
 
+func ShowSlowMessage() {
+	if !IsGitHubAccessTokenProvided() {
+		fmt.Println(fmt.Sprintf(
+			"warning: If the environment variable %v is not set, API searches will be very slow.",
+			GitHubAccessTokenKey,
+		))
+	}
+	if !IsUseGitCommandProvided() {
+		fmt.Println(fmt.Sprintf(
+			"warning: If the environment variable %v is not set, blame operation will be very slow.",
+			KunitoriUseGitCommandProvidedKey,
+		))
+	}
+}
+
 func Generate(options *GenerateOptions) (*GenerateResult, error) {
 	var repository *git.Repository
 	var repositoryLocation string

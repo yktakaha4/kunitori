@@ -140,6 +140,8 @@ func TestSearchCommits(t *testing.T) {
 }
 
 func TestCountLines(t *testing.T) {
+	t.Setenv(KunitoriUseGitCommandProvidedKey, "")
+
 	djangoRepository := openTestRepository("django")
 	djangoHeadCommit := getHeadCommit(djangoRepository)
 
@@ -329,6 +331,115 @@ func TestCountLines(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestCountLines__diff(t *testing.T) {
+	t.Setenv(KunitoriUseGitCommandProvidedKey, "")
+
+	djangoRepository := openTestRepository("django")
+	djangoHeadCommit := getHeadCommit(djangoRepository)
+
+	option := CountLinesOption{
+		Filters: []regexp.Regexp{
+			*regexp.MustCompile("^\\w+\\.\\w+$"),
+		},
+		AuthorRegexes: []AuthorRegex{},
+	}
+
+	goGitResult, err := CountLines(djangoRepository, djangoHeadCommit, &option)
+	assert.NoError(t, err)
+
+	t.Setenv(KunitoriUseGitCommandProvidedKey, "1")
+	gitCommandResult, err := CountLines(djangoRepository, djangoHeadCommit, &option)
+	assert.NoError(t, err)
+
+	assert.NotEqual(t, goGitResult, gitCommandResult)
+}
+
+func TestBlameWithGitCommand(t *testing.T) {
+	t.Setenv(KunitoriUseGitCommandProvidedKey, "1")
+
+	djangoRepository := openTestRepository("django")
+	djangoHeadCommit := getHeadCommit(djangoRepository)
+
+	option := CountLinesOption{
+		Filters: []regexp.Regexp{
+			*regexp.MustCompile("^setup\\.\\w+$"),
+		},
+		AuthorRegexes: []AuthorRegex{},
+	}
+
+	maskRegex := regexp.MustCompile("@.+$")
+
+	results, err := CountLines(djangoRepository, djangoHeadCommit, &option)
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(results))
+
+	result := results[0]
+	expected := CountLinesResult{
+		Filter: option.Filters[0],
+		LinesByAuthor: map[string]int{
+			"adrian@masked.com":           4,
+			"bruno@masked.com":            1,
+			"carl@masked.com":             36,
+			"carlton.gibson@masked.com":   11,
+			"carlton@masked.com":          4,
+			"felisiak.mariusz@masked.com": 4,
+			"florian@masked.com":          4,
+			"jacob@masked.com":            1,
+			"jon.dufresne@masked.com":     47,
+			"ops@masked.com":              6,
+			"smithdc@masked.com":          1,
+			"timograham@masked.com":       7,
+			"ville.skytta@masked.com":     1,
+		},
+		NameByAuthor: map[string]string{
+			"adrian@masked.com":           "Adrian Holovaty",
+			"bruno@masked.com":            "Bruno Renié",
+			"carl@masked.com":             "Carl Meyer",
+			"carlton.gibson@masked.com":   "Carlton Gibson",
+			"carlton@masked.com":          "Carlton Gibson",
+			"felisiak.mariusz@masked.com": "Mariusz Felisiak",
+			"florian@masked.com":          "Florian Apolloner",
+			"jacob@masked.com":            "Jacob Kaplan-Moss",
+			"jon.dufresne@masked.com":     "Jon Dufresne",
+			"ops@masked.com":              "django-bot",
+			"smithdc@masked.com":          "David Smith",
+			"timograham@masked.com":       "Tim Graham",
+			"ville.skytta@masked.com":     "Ville Skyttä",
+		},
+		MatchedFiles: []string{
+			"setup.cfg",
+			"setup.py",
+		},
+	}
+	assert.Equal(t, expected.Filter, result.Filter)
+
+	maskedLinesByAuthor := map[string]int{}
+	for key, value := range result.LinesByAuthor {
+		maskedKey := maskRegex.ReplaceAllString(key, "@masked.com")
+		maskedLinesByAuthor[maskedKey] = value
+	}
+	assert.Equal(t, expected.LinesByAuthor, maskedLinesByAuthor)
+
+	maskedNameByAuthor := map[string]string{}
+	for key, value := range result.NameByAuthor {
+		maskedKey := maskRegex.ReplaceAllString(key, "@masked.com")
+		maskedNameByAuthor[maskedKey] = value
+	}
+	assert.Equal(t, expected.NameByAuthor, maskedNameByAuthor)
+}
+
+func TestIsUseGitCommandProvided(t *testing.T) {
+	t.Run("is set", func(t *testing.T) {
+		t.Setenv(KunitoriUseGitCommandProvidedKey, "1")
+		assert.True(t, IsUseGitCommandProvided())
+	})
+
+	t.Run("is not set", func(t *testing.T) {
+		t.Setenv(KunitoriUseGitCommandProvidedKey, "")
+		assert.False(t, IsUseGitCommandProvided())
+	})
 }
 
 func rootPath() string {

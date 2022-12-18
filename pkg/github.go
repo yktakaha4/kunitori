@@ -15,15 +15,6 @@ import (
 const GitHubAccessTokenKey = "GITHUB_ACCESS_TOKEN"
 const KunitoriSkipRequestGitHubApi = "KUNITORI_SKIP_REQUEST_GITHUB_API"
 
-func ShowSlowMessage() {
-	if !IsGitHubAccessTokenProvided() {
-		fmt.Println(fmt.Sprintf(
-			"warning: If the environment variable %v is not set, API searches will be very slow.",
-			GitHubAccessTokenKey,
-		))
-	}
-}
-
 func FindLoginByEmail(email string) (string, error) {
 	if os.Getenv(KunitoriSkipRequestGitHubApi) == "yes" {
 		return "kunitori", nil

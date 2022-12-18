@@ -1,12 +1,18 @@
 package pkg
 
 import (
+	"bufio"
+	"bytes"
+	"fmt"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"log"
+	"os"
+	"os/exec"
 	"regexp"
 	"sort"
+	"strings"
 	"time"
 )
 
@@ -208,14 +214,23 @@ func CountLines(repository *git.Repository, commit *object.Commit, options *Coun
 
 			log.Printf("match: file=%+v, filter=%+v", file.Name, result.Filter.String())
 
-			blameResult, err := git.Blame(commit, file.Name)
-			if err != nil {
-				log.Printf("failed to blame: err=%v", err)
-				errorCount++
-				continue
+			lines := make([]*git.Line, 0)
+			if IsUseGitCommandProvided() {
+				lines, err = BlameWithGitCommand(repository, commit, file.Name)
+				if err != nil {
+					return err
+				}
+			} else {
+				blameResult, err := git.Blame(commit, file.Name)
+				if err != nil {
+					log.Printf("failed to blame: err=%v", err)
+					errorCount++
+					continue
+				}
+				lines = blameResult.Lines
 			}
 
-			for _, line := range blameResult.Lines {
+			for _, line := range lines {
 				author := line.Author
 				for _, autRegex := range options.AuthorRegexes {
 					if autRegex.Condition.MatchString(line.Author) {
@@ -250,4 +265,61 @@ func CountLines(repository *git.Repository, commit *object.Commit, options *Coun
 	)
 
 	return results, nil
+}
+
+const KunitoriUseGitCommandProvidedKey = "KUNITORI_USE_GIT_COMMAND"
+
+func IsUseGitCommandProvided() bool {
+	return len(os.Getenv(KunitoriUseGitCommandProvidedKey)) > 0
+}
+
+var blameLineRegexp = regexp.MustCompile("^\\w+\\s\\d+\\)\\s")
+
+func BlameWithGitCommand(repository *git.Repository, commit *object.Commit, file string) ([]*git.Line, error) {
+	workTree, err := repository.Worktree()
+	if err != nil {
+		return nil, err
+	}
+
+	repoRoot := workTree.Filesystem.Root()
+	hash := commit.Hash.String()
+	blameResult, err := exec.Command("git", "-C", repoRoot, "blame", "-sl", hash, file).Output()
+	if err != nil {
+		return nil, err
+	}
+
+	lineCommitCache := map[string]*object.Commit{}
+
+	lines := make([]*git.Line, 0)
+	scanner := bufio.NewScanner(bytes.NewReader(blameResult))
+	for scanner.Scan() {
+		line := scanner.Text()
+		hashStr := strings.Split(line, " ")[0]
+		if !plumbing.IsHash(hashStr) {
+			return nil, fmt.Errorf("%v is not hash", hashStr)
+		}
+
+		if lineCommitCache[hashStr] == nil {
+			hash := plumbing.NewHash(hashStr)
+			lineCommit, err := repository.CommitObject(hash)
+			if err != nil {
+				return nil, err
+			}
+
+			lineCommitCache[hashStr] = lineCommit
+		}
+
+		lineCommit := lineCommitCache[hashStr]
+
+		text := blameLineRegexp.ReplaceAllString(line, "")
+
+		lines = append(lines, &git.Line{
+			Author: lineCommit.Author.Email,
+			Text:   text,
+			Date:   lineCommit.Author.When.UTC(),
+			Hash:   lineCommit.Hash,
+		})
+	}
+
+	return lines, nil
 }
