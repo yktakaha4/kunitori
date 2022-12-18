@@ -1,3 +1,6 @@
 [submodule "test/testdata/django"]
 	path = test/testdata/django
 	url = https://github.com/django/django.git
+[submodule "test/testdata/yokuwakaru-grpc"]
+	path = test/testdata/yokuwakaru-grpc
+	url = https://github.com/yktakaha4/yokuwakaru-grpc.git
