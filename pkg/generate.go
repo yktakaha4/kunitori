@@ -6,6 +6,7 @@ import (
 	"github.com/go-git/go-git/v5"
 	"log"
 	"os"
+	"path/filepath"
 	"regexp"
 	"time"
 )
@@ -92,17 +93,25 @@ func Generate(options *GenerateOptions) (*GenerateResult, error) {
 		}(tempDir)
 
 		repositoryLocation = options.RepositoryUrl
-		fmt.Println(fmt.Sprintf("open repository: url=%v", options.RepositoryUrl))
+		repositoryLocation, err = filepath.Abs(repositoryLocation)
+		if err != nil {
+			return nil, err
+		}
+		fmt.Println(fmt.Sprintf("open repository: url=%v", repositoryLocation))
 
-		repository, err = CloneRepository(options.RepositoryUrl, tempDir)
+		repository, err = CloneRepository(repositoryLocation, tempDir)
 		if err != nil {
 			return nil, err
 		}
 	} else if options.RepositoryPath != "" {
 		repositoryLocation = options.RepositoryPath
-		fmt.Println(fmt.Sprintf("open repository: path=%v", options.RepositoryPath))
+		repositoryLocation, err = filepath.Abs(repositoryLocation)
+		if err != nil {
+			return nil, err
+		}
+		fmt.Println(fmt.Sprintf("open repository: path=%v", repositoryLocation))
 
-		repository, err = OpenRepository(options.RepositoryPath)
+		repository, err = OpenRepository(repositoryLocation)
 		if err != nil {
 			return nil, err
 		}
