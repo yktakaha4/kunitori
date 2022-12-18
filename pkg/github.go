@@ -43,7 +43,7 @@ func FindLoginByEmail(email string) (string, error) {
 
 			return login, nil
 		} else {
-			return "", fmt.Errorf("invalid github email: email=%v", email)
+			log.Printf("invalid github email: email=%v", email)
 		}
 	}
 

@@ -19,10 +19,7 @@ func TestRenderChartHtml(t *testing.T) {
 				LineCounts: []GenerateResultCommitLineCount{
 					{
 						FilterRegex: "dummy regex",
-						FileNames: []string{
-							"dummy-file-1",
-							"dummy-file-2",
-						},
+						FileCount:   2,
 						Areas: []GenerateResultCommitLineCountArea{
 							{
 								Name:        "dummy-area",
