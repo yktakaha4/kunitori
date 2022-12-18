@@ -73,7 +73,14 @@
       const rankingEl = document.getElementById("ranking");
       rankingEl.querySelectorAll("tr").forEach((el) => el.classList.remove("selected"));
       if (selectedRank > -1) {
-        rankingEl.querySelector(`tr:nth-child(${selectedRank+1})`).classList.add("selected");
+        rankingEl.querySelectorAll("tr").forEach((el) => {
+          const tdEl = el.querySelector('td:nth-of-type(1)');
+          if (tdEl) {
+            if (tdEl.innerText === selectedRank.toString()) {
+              el.classList.add("selected");
+            }
+          }
+        })
       }
     }
 
@@ -108,8 +115,8 @@
         cumulaviteLineCount += author.lineCount;
 
         const values = [
+          !!author.latestRank ? author.latestRank : author.rank,
           author.rank,
-          !!author.latestRank && (author.rank !== author.latestRank) ? author.latestRank : '-',
           authorName,
           author.lineCount.toLocaleString(),
           esc(formatter.format(author.lineCount / totalLineCount)),
