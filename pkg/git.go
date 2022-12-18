@@ -211,7 +211,7 @@ func CountLines(repository *git.Repository, commit *object.Commit, options *Coun
 				return err
 			}
 			if !isMatch {
-				return nil
+				continue
 			}
 
 			result.MatchedFiles = append(result.MatchedFiles, file.Name)
