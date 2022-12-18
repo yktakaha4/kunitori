@@ -121,7 +121,13 @@ func Generate(options *GenerateOptions) (*GenerateResult, error) {
 		return nil, errors.New("should specify url or path")
 	}
 
-	fmt.Println("search commit...")
+	fmt.Println(fmt.Sprintf(
+		"search commit: since=%v, until=%v, interval=%v, limit=%v",
+		options.SearchCommitsOptions.Since,
+		options.SearchCommitsOptions.Until,
+		options.SearchCommitsOptions.Interval,
+		options.SearchCommitsOptions.Limit,
+	))
 
 	commits, err := SearchCommits(repository, options.SearchCommitsOptions)
 	if err != nil {
@@ -129,6 +135,12 @@ func Generate(options *GenerateOptions) (*GenerateResult, error) {
 	}
 
 	fmt.Println(fmt.Sprintf("matched commits: count=%v", len(commits)))
+
+	fmt.Println(fmt.Sprintf(
+		"count group: filters=%v, authors=%v",
+		len(options.CountLinesOption.Filters),
+		len(options.CountLinesOption.AuthorRegexes),
+	))
 
 	gitHubLoginNameCache := map[string]*string{}
 
