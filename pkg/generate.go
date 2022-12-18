@@ -81,6 +81,7 @@ func Generate(options *GenerateOptions) (*GenerateResult, error) {
 		return nil, err
 	}
 
+	var repositoryLocation string
 	if options.RepositoryUrl != "" {
 		tempDir, err := os.MkdirTemp("", "TestCloneRepository")
 		if err != nil {
@@ -93,7 +94,7 @@ func Generate(options *GenerateOptions) (*GenerateResult, error) {
 			}
 		}(tempDir)
 
-		repositoryLocation := options.RepositoryUrl
+		repositoryLocation = options.RepositoryUrl
 		repositoryLocation, err = filepath.Abs(repositoryLocation)
 		if err != nil {
 			return nil, err
@@ -105,7 +106,7 @@ func Generate(options *GenerateOptions) (*GenerateResult, error) {
 			return nil, err
 		}
 	} else if options.RepositoryPath != "" {
-		repositoryLocation := options.RepositoryPath
+		repositoryLocation = options.RepositoryPath
 		repositoryLocation, err = filepath.Abs(repositoryLocation)
 		if err != nil {
 			return nil, err
@@ -125,7 +126,7 @@ func Generate(options *GenerateOptions) (*GenerateResult, error) {
 		fmt.Println(err)
 	}
 	if repositoryRemoteLocation == "" {
-		repositoryRemoteLocation = "unknown"
+		repositoryRemoteLocation = repositoryLocation
 	}
 
 	fmt.Println(fmt.Sprintf("location: remote=%v", repositoryRemoteLocation))

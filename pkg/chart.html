@@ -94,6 +94,17 @@
 
       const lineCount = chartData.commits[selectedCommitIndex].lineCounts[selectedFilterIndex];
 
+      const revisionEl = document.getElementById("revision");
+      if (chartData.source === "github") {
+        const hrefUrl = `${chartData.repository}/tree/${lineCount.hash}`;
+        revisionEl.innerHTML = `<a target="_blank" href="${esc(hrefUrl)}">${esc(lineCount.hash)}</a>`;
+      } else {
+        revisionEl.innerText = lineCount.hash;
+      }
+
+      const commitedAtEl = document.getElementById("commitedAt");
+      commitedAtEl.innerText = new Date(lineCount.committedAt).toLocaleString();
+
       const totalLineCount = lineCount.authors.reduce((cnt, author) => {
         return cnt + author.lineCount;
       }, 0);
@@ -185,7 +196,11 @@
 
       const shortHash = (value) => value.substring(0, 7);
 
-      document.getElementById("repository").innerText = chartData.repository;
+      if (chartData.source !== "unknown") {
+        document.getElementById("repository").innerHTML = `<a target="_blank" href="${esc(chartData.repository)}">${esc(chartData.repository)}</a>`;
+      } else {
+        document.getElementById("repository").innerText = chartData.repository;
+      }
       document.getElementById("generated").innerText = new Date(chartData.generatedAt).toLocaleString();
 
       const commitEl = document.getElementById("commit");
@@ -241,6 +256,8 @@
   <table class="info">
     <tr>
       <th>Total lines</th>
+      <td><span id="revision"></span></td>
+      <td><span id="commitedAt"></span></td>
       <td><span id="totalLine"></span></td>
     </tr>
   </table>
