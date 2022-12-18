@@ -24,6 +24,7 @@ type GenerateResultCommitLineCountAuthor struct {
 	Name        string `json:"name"`
 	GitHubLogin string `json:"gitHubLogin"`
 	LineCount   int    `json:"lineCount"`
+	Rank        int    `json:"rank"`
 }
 
 type GenerateResultCommitLineCountArea struct {
@@ -188,6 +189,38 @@ func Generate(options *GenerateOptions) (*GenerateResult, error) {
 						Name:        result.NameByAuthor[email],
 						GitHubLogin: *gitHubLogin,
 						LineCount:   result.LinesByAuthor[email],
+						Rank:        areaAuthor.AuthorRank,
+					})
+				}
+			}
+
+			notAllocatedAuthors := make([]GenerateResultCommitLineCountAuthor, 0)
+			for email, lineCount := range result.LinesByAuthor {
+				found := false
+				for _, areaAuthor := range areaAuthors {
+					if areaAuthor.Author == email {
+						found = true
+						break
+					}
+				}
+
+				if !found {
+					if gitHubLoginNameCache[email] == nil {
+						login, err := FindLoginByEmail(email)
+						if err != nil {
+							return nil, err
+						}
+						gitHubLoginNameCache[email] = &login
+					}
+
+					gitHubLogin := gitHubLoginNameCache[email]
+
+					notAllocatedAuthors = append(notAllocatedAuthors, GenerateResultCommitLineCountAuthor{
+						Email:       email,
+						Name:        result.NameByAuthor[email],
+						GitHubLogin: *gitHubLogin,
+						LineCount:   lineCount,
+						Rank:        -1,
 					})
 				}
 			}
@@ -196,7 +229,7 @@ func Generate(options *GenerateOptions) (*GenerateResult, error) {
 				FilterRegex: result.Filter.String(),
 				FileCount:   len(result.MatchedFiles),
 				Areas:       areas,
-				Authors:     authors,
+				Authors:     append(authors, notAllocatedAuthors...),
 			})
 		}
 
