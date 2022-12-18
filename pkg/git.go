@@ -289,6 +289,7 @@ func BlameWithGitCommand(repository *git.Repository, commit *object.Commit, file
 		return nil, err
 	}
 
+	badCommit := map[string]bool{}
 	lineCommitCache := map[string]*object.Commit{}
 
 	lines := make([]*git.Line, 0)
@@ -296,15 +297,16 @@ func BlameWithGitCommand(repository *git.Repository, commit *object.Commit, file
 	for scanner.Scan() {
 		line := scanner.Text()
 		hashStr := invalidCharacterRegexp.ReplaceAllString(strings.Split(line, " ")[0], "")
-		if !plumbing.IsHash(hashStr) {
-			return nil, fmt.Errorf("%v is not hash", hashStr)
-		}
 
-		if lineCommitCache[hashStr] == nil {
-			hash := plumbing.NewHash(hashStr)
-			lineCommit, err := repository.CommitObject(hash)
+		if badCommit[hashStr] {
+			continue
+		} else if lineCommitCache[hashStr] == nil {
+			lineHash := plumbing.NewHash(hashStr)
+			lineCommit, err := repository.CommitObject(lineHash)
 			if err != nil {
-				return nil, err
+				log.Printf(fmt.Sprintf("invalid commit: hash=%v, error=%v", hashStr, err))
+				badCommit[hashStr] = true
+				continue
 			}
 
 			lineCommitCache[hashStr] = lineCommit

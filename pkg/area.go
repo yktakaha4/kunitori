@@ -22,7 +22,13 @@ func AllocateAreas(areaInfo *AreaInfo, result *CountLinesResult) ([]*AreaAuthor,
 		areaRatio  float64
 	}
 
-	log.Printf("start GetAreaAuthors: areaInfo=%+v, result=%+v", areaInfo, result)
+	log.Printf(
+		"start GetAreaAuthors: areaInfo.Region=%+v, result.NameByAuthor=%+v, result.LinesByAuthor=%+v, result.MatchedFiles=%+v",
+		areaInfo.Region,
+		len(result.NameByAuthor),
+		len(result.LinesByAuthor),
+		len(result.MatchedFiles),
+	)
 
 	if len(result.LinesByAuthor) == 0 {
 		return []*AreaAuthor{}, nil
