@@ -15,6 +15,11 @@ import (
 	"time"
 )
 
+var (
+	Version     = "unset"
+	ShortCommit = "unset"
+)
+
 type arrayFlags []string
 
 func (i *arrayFlags) String() string {
@@ -31,11 +36,14 @@ func main() {
 		log.SetOutput(io.Discard)
 	}
 
-	defaultHelpMessage := `Kunitori
+	defaultHelpMessage := fmt.Sprintf(`Kunitori (国盗り)
 
-[subcommands]
-generate	...	generate Kunitori chart
-`
+Version: %v
+Commit: %v
+
+SubCommands:
+	generate	...	generate Kunitori chart
+`, Version, ShortCommit)
 
 	if len(os.Args) < 2 {
 		fmt.Print(defaultHelpMessage)

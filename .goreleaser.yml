@@ -6,6 +6,11 @@ builds:
       - windows
       - darwin
     main: ./cmd/kunitori
+    binary: kunitori
+    ldflags:
+      - -s -w
+      - -X main.Version={{.Version}}
+      - -X main.ShortCommit={{.ShortCommit}}
 archives:
   - replacements:
       darwin: Darwin
