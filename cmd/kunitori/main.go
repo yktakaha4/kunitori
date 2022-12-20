@@ -32,7 +32,9 @@ func main() {
 	}
 
 	defaultHelpMessage := `Kunitori
-- generate	...	generate chart
+
+[subcommands]
+generate	...	generate Kunitori chart
 `
 
 	if len(os.Args) < 2 {
@@ -47,7 +49,7 @@ func main() {
 		generateJson := generateCmd.Bool("json", false, "export as json format")
 		generateUrl := generateCmd.String("url", "", "repository url")
 		generatePath := generateCmd.String("path", "", "repository path")
-		generateRegion := generateCmd.String("region", "JP", "chart region (default: JP)")
+		generateRegion := generateCmd.String("region", "JP", "chart region")
 		generateSince := generateCmd.String(
 			"since",
 			"",
@@ -61,12 +63,12 @@ func main() {
 		generateInterval := generateCmd.Duration(
 			"interval",
 			time.Hour*24*30,
-			"commit pick interval (default: 30 days)",
+			"commit pick interval",
 		)
 		generateLimit := generateCmd.Int(
 			"limit",
 			12,
-			fmt.Sprintf("commit pick limit (default: 12, max: %v)", pkg.SearchCommitMaxLimit),
+			"commit pick limit",
 		)
 
 		var filters arrayFlags
