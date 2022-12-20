@@ -8,6 +8,7 @@ import (
 	"github.com/yktakaha4/kunitori/pkg"
 	"io"
 	"log"
+	"net/url"
 	"os"
 	"path"
 	"path/filepath"
@@ -151,6 +152,25 @@ SubCommands:
 		if _, err := os.Stat(*generateOut); os.IsNotExist(err) {
 			fmt.Println(err)
 			os.Exit(1)
+		}
+
+		if *generateUrl == "" && *generatePath == "" {
+			fmt.Println("should specify repository url or path")
+			os.Exit(1)
+		}
+
+		if *generateUrl != "" {
+			if _, err := url.ParseRequestURI(*generateUrl); err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+		}
+
+		if *generatePath != "" {
+			if _, err := os.Stat(*generatePath); os.IsNotExist(err) {
+				fmt.Println(err)
+				os.Exit(1)
+			}
 		}
 
 		options := pkg.GenerateOptions{

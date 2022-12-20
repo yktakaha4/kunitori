@@ -95,10 +95,7 @@ func Generate(options *GenerateOptions) (*GenerateResult, error) {
 		}(tempDir)
 
 		repositoryLocation = options.RepositoryUrl
-		repositoryLocation, err = filepath.Abs(repositoryLocation)
-		if err != nil {
-			return nil, err
-		}
+
 		fmt.Println(fmt.Sprintf("open repository: url=%v", repositoryLocation))
 
 		repository, err = CloneRepository(repositoryLocation, tempDir)
