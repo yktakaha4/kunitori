@@ -15,6 +15,11 @@ import (
 	"time"
 )
 
+var (
+	Version     = "unset"
+	ShortCommit = "unset"
+)
+
 type arrayFlags []string
 
 func (i *arrayFlags) String() string {
@@ -31,9 +36,14 @@ func main() {
 		log.SetOutput(io.Discard)
 	}
 
-	defaultHelpMessage := `Kunitori
-- generate	...	generate chart
-`
+	defaultHelpMessage := fmt.Sprintf(`Kunitori (国盗り)
+
+Version: %v
+Commit: %v
+
+SubCommands:
+	generate	...	generate Kunitori chart
+`, Version, ShortCommit)
 
 	if len(os.Args) < 2 {
 		fmt.Print(defaultHelpMessage)
@@ -47,7 +57,7 @@ func main() {
 		generateJson := generateCmd.Bool("json", false, "export as json format")
 		generateUrl := generateCmd.String("url", "", "repository url")
 		generatePath := generateCmd.String("path", "", "repository path")
-		generateRegion := generateCmd.String("region", "JP", "chart region (default: JP)")
+		generateRegion := generateCmd.String("region", "JP", "chart region")
 		generateSince := generateCmd.String(
 			"since",
 			"",
@@ -61,12 +71,12 @@ func main() {
 		generateInterval := generateCmd.Duration(
 			"interval",
 			time.Hour*24*30,
-			"commit pick interval (default: 30 days)",
+			"commit pick interval",
 		)
 		generateLimit := generateCmd.Int(
 			"limit",
 			12,
-			fmt.Sprintf("commit pick limit (default: 12, max: %v)", pkg.SearchCommitMaxLimit),
+			"commit pick limit",
 		)
 
 		var filters arrayFlags

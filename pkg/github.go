@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-const GitHubAccessTokenKey = "GITHUB_ACCESS_TOKEN"
+const GitHubAccessTokenKey = "KUNITORI_GITHUB_ACCESS_TOKEN"
 const KunitoriSkipRequestGitHubApi = "KUNITORI_SKIP_REQUEST_GITHUB_API"
 
 func FindLoginByEmail(email string) (string, error) {

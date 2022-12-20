@@ -27,5 +27,7 @@ go.work
 # End of https://www.toptal.com/developers/gitignore/api/go
 
 .envrc
-/chart.html
-/generate.json
+/*.html
+/*.json
+/kunitori
+dist/

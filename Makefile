@@ -10,7 +10,7 @@ testall:
 
 .PHONY: build
 build:
-	go build -o ./bin/kunitori -v ./cmd/kunitori/
+	go build -v ./cmd/kunitori/
 
 .PHONY: fmt
 fmt:
