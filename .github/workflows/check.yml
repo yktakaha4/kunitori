@@ -52,3 +52,5 @@ jobs:
           go-version: 1.19
 
       - run: make test
+        env:
+          KUNITORI_SKIP_REQUEST_GITHUB_API: 1
